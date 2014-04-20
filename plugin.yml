@@ -1,0 +1,5 @@
+name:LegionPE-Delta
+authors:
+- PEMapModder
+main: pemapmodder\legionpe\hub\HubPluin
+load: startup
