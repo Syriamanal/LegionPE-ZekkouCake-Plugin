@@ -14,12 +14,17 @@ abstract class RawLocs{
 	public static function enterPvpPor(){
 		return new MySpace(new Vector3(159, 30, 124), new Vector3(157, 42, 134), self::hub());
 	}
-	public static function enterP
+	public static function enterPkPor(){
+		// return new MySpace();
+	}
 	public static function hub(){
 		return Lv::get("world");
 	}
 	public static function spleef(){
 		return Lv::get("world_spleef");
+	}
+	public static function pk(){
+		return self::parkour();
 	}
 	public static function parkour(){
 		return Lv::get("world_parkour");

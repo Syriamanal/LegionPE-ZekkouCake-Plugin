@@ -2,18 +2,18 @@
 
 namespace pemapmodder\legionpe\hub;
 
-if(true){
-	use pemapmodder\legionpe\geog\RawLocs as Loc;
-	use pemapmodder\legionpe\team\TeamAPI;
+use pemapmodder\legionpe\geog\RawLocs as Loc;
 
-	use pocketmine\Player;
-	use pocketmine\event\Event;
-	use pocketmine\event\Listener;
-	use pocketmine\level\Level;
-	use pocketmine\plugin\PluginBase;
-	use pocketmine\utils\Config;
-	use pocketmine\utils\TextFormat;
-}
+use pemapmodder\utils\CallbackPluginTask;
+use pemapmodder\utils\CallbackEventExe;
+
+use pocketmine\Player;
+use pocketmine\event\Event;
+use pocketmine\event\Listener;
+use pocketmine\level\Level;
+use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Config;
+use pocketmine\utils\TextFormat;
 
 class HubPlugin extends PluginBase implements Listener{
 	const REGISTER	= 0b10;
@@ -36,7 +36,7 @@ class HubPlugin extends PluginBase implements Listener{
 		console(TextFormat::GREEN . "Done!");
 	}
 	protected function initObjects(){
-		$this->team = new TeamAPI($this);
+		Team::init();
 	}
 	protected function registerHandles(){
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess") as $e)
@@ -125,7 +125,7 @@ class HubPlugin extends PluginBase implements Listener{
 				}
 				break;
 			default:
-				console("[WARNING] Event ".get_class($event)." called listener at ".get_class()." but not listened to!");
+				console("[WARNING] Event ".get_class($event)." passed to listener at ".get_class()." but not listened to!");
 				break;
 		}
 		if($event instanceof PlayerInteractEvent and !$event->isCancelled){

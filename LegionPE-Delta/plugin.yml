@@ -3,3 +3,5 @@ authors:
 - PEMapModder
 main: pemapmodder\legionpe\hub\HubPluin
 load: startup
+prefix: LegionPE
+website: https://github.com/mcpesrccode/LegionPE-ZekkouCake-Plugin
