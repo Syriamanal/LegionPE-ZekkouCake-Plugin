@@ -37,6 +37,7 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	protected function initObjects(){
 		Team::init();
+		Hub::init();
 	}
 	protected function registerHandles(){
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess") as $e)
