@@ -1,10 +1,14 @@
 <?php
 
-namespace pemapmodder\legionpe;
+namespace pemapmodder\legionpe\hub;
 
 use pemapmodder\legionpe\geog\RawLocs as RL;
+use pemapmodder\utils\DummyPlugin;
+use pemapmodder\utils\CallbackPluginTask;
 
 use pocketmine\Player;
+use pocketmine\Server;
+use pocketmine\tile\Tile;
 
 class Team implements \ArrayAccess{
 	// static
@@ -12,6 +16,7 @@ class Team implements \ArrayAccess{
 	public static function init(){
 		for($i = 0; $i < 4; $i++)
 			self::$teams[$i] = new self($i);
+		Server::getInstance()->getScheduler()->scheduleRepeatedTask(new CallbackPluginTask(array(get_class(), "updateScoreBars"), HubPlugin::get()), 600);
 	}
 	public static function canJoin($team){
 		$scores = array();
@@ -26,12 +31,19 @@ class Team implements \ArrayAccess{
 	public static function updateSigns(){
 		for($i = 0; $i < 4; $i++){
 			if(self::canJoin($i)){
-				
+				DummyPlugin::getTile(RL::chooseTeamSigns($i))->setText("Tap me to join", "TEAM ".strtoupper(self::$teams[$i]["name"]));
 			}
 			else{
-				
+				DummyPlugin::getTile(RL::chooseTeamSigns($i))->setText("TEAM ".strtoupper(self::$teams[$i]["name"]), "is now full.", "Come back later", "or join others");
 			}
 		}
+	}
+	public static function updateScoreBars(){
+		$scores = array();
+		for($i = 0; $i < 4; $i++){
+			$scores[$i] = self::$teams[$i]["points"];
+		}
+		$max = max($scores);
 	}
 	// non-static
 	public $config = array();
@@ -42,6 +54,8 @@ class Team implements \ArrayAccess{
 			$this->config = \yaml_parse(\file_get_contents($path));
 		}
 		else{
+			$this->config["name"] = array("magma", "lapiz", "lilac", "lime")[$i];
+			$this->config["color-meta"] = array(1, 2, 3, 5)[$i];
 			$this->config["points"] = 1000;
 			$this->config["members-cnt"] = 10;
 			\file_put_contents($path, \yaml_emit($this->config));
