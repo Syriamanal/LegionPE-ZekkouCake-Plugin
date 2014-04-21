@@ -46,7 +46,7 @@ class HubPlugin extends PluginBase implements Listener{
 		Pvp::init();
 	}
 	protected function registerHandles(){
-		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess") as $e)
+		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin") as $e)
 			$this->addHandler($e);
 	}
 	protected function addHandler($event){
@@ -90,6 +90,8 @@ class HubPlugin extends PluginBase implements Listener{
                 if(is_callable(array($event, "getPlayer")))
                     $p = $event->getPlayer();
 		switch(substr($class, 0, -5)){
+			case "PlayerLogin":
+				break;
 			case "PlayerJoin":
 				$event->setMessage("");
 				$this->openDb($p);
@@ -165,13 +167,6 @@ class HubPlugin extends PluginBase implements Listener{
 				console("[WARNING] Event ".get_class($event)." passed to listener at ".get_class()." but not listened to!");
 				break;
 		}
-		if($event instanceof PlayerInteractEvent and !$event->isCancelled){
-			for($i = 0; $i < 4; $i++){
-				if(Loc::chooseTeamSign($i)->equals($event->getBlock())){
-					// TODO join team!
-				}
-			}
-		}
 	}
 	public function onRegistered(Player $p){
 		$p->teleport(Loc::chooseTeamStd());
@@ -181,6 +176,7 @@ class HubPlugin extends PluginBase implements Listener{
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Level::get("world")->getSafeSpawn();
 		$p->teleport($s);
+		$this->getServer()->getPluginManager()->callEvent(new PlayerAuthEvent($p));
 		$this->getServer()->getScheduler()->scheduleDelayedTask(
 				new CallbackPluginTask(array($p, "teleport"), $this, array($s), true), 100);
 	}

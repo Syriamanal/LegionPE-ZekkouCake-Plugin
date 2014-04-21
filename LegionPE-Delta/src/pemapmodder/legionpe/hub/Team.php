@@ -2,6 +2,8 @@
 
 namespace pemapmodder\legionpe;
 
+use pemapmodder\legionpe\geog\RawLocs as RL;
+
 use pocketmine\Player;
 
 class Team implements \ArrayAccess{
@@ -22,7 +24,14 @@ class Team implements \ArrayAccess{
 		return $ts <= 5;
 	}
 	public static function updateSigns(){
-		
+		for($i = 0; $i < 4; $i++){
+			if(self::canJoin($i)){
+				
+			}
+			else{
+				
+			}
+		}
 	}
 	// non-static
 	public $config = array();
