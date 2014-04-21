@@ -24,16 +24,16 @@ class HubPlugin extends PluginBase implements Listener{
 	protected $tmpPws = array();
 	public function onLoad(){
 		self::$instance = $this;
-		$this->path = $this->getServer()->getDataPath() . "Hub/";
+		$this->path = $this->getServer()->getDataPath()."Hub/";
 		@mkdir($this->path);
-		$this->playerPath = $this->path . "players/";
+		$this->playerPath = $this->path."players/";
 		@mkdir($this->playerPath);
 	}
 	public function onEnable(){
-		console(TextFormat::AQUA . "Initializing Hub... ", false);
+		console(TextFormat::AQUA."Initializing Hub... ", false);
 		$this->registerHandles();
 		$this->initObjects();
-		console(TextFormat::GREEN . "Done!");
+		console(TextFormat::GREEN."Done!");
 	}
 	protected function initObjects(){
 		Team::init();
@@ -45,7 +45,7 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	protected function addHandler($event){
 		$this->getServer()->getPluginManager()->registerEvent(
-				"pocketmine\\event\\" . $event . "Event", $this,
+				"pocketmine\\event\\".substr(strtolower($event), 0, 6)."\\".$event."Event", $this,
 				EventPriority::HIGH, new CallbackEventExe(array($this, "evt")), $this, false);
 	}
 	public function evt(Event $event){
@@ -150,7 +150,7 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	// local utils //
 	private function openDb($p){
-		$config = new Config($this->playerPath . substr(strtolower($p->getName()), 0, 1) . "/" . strtolower($p->getName()), Config::YAML, array(
+		$config = new Config($this->playerPath.substr(strtolower($p->getName()), 0, 1)."/".strtolower($p->getName()), Config::YAML, array(
 			"pw-hash" => false,
 			"ip-auth" => false,
 			"prefixes" => array("kitpvp"=>"", "parkour"=>"", "kitpvp-rank"=>""),
