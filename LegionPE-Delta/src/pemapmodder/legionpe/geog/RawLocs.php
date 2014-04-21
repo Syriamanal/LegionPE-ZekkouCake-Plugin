@@ -23,13 +23,22 @@ abstract class RawLocs{
 	public static function spleef(){
 		return Lv::get("world_spleef");
 	}
-	public static function pk(){
-		return self::parkour();
+	public static function spleefSpawn(){
+		return self::spleef()->getSafeSpawn();
 	}
 	public static function parkour(){
 		return Lv::get("world_parkour");
 	}
+	public static function pk(){
+		return self::parkour();
+	}
+	public static function pkSpawn(){
+		return self::pk()->getSafeSpawn();
+	}
 	public static function pvp(){
 		return Lv::get("world_pvp");
+	}
+	public static function pvpSpawn(){
+		return self::pvp()->getSafeSpawn();
 	}
 }
