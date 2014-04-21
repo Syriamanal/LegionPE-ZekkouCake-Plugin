@@ -41,8 +41,8 @@ class Hub implements Listener{
 			$this->teleports[strtolower($p->getName())] = time();
 		}
 	}
-	public static $hub;
+	public static $hub = false;
 	public static function init(){
-		self::$hub=new Hub();
+		self::$hub=new self();
 	}
 }

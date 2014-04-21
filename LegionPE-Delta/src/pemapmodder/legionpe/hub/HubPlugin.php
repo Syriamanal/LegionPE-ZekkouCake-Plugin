@@ -3,11 +3,15 @@
 namespace pemapmodder\legionpe\hub;
 
 use pemapmodder\legionpe\geog\RawLocs as Loc;
+use pemapmodder\legionpe\mgs\pvp\Pvp;
 
 use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
 
 use pocketmine\Player;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
+use pocketmine\command\PluginCommand;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
 use pocketmine\level\Level;
@@ -33,11 +37,13 @@ class HubPlugin extends PluginBase implements Listener{
 		console(TextFormat::AQUA."Initializing Hub... ", false);
 		$this->registerHandles();
 		$this->initObjects();
+		$this->initCmds();
 		console(TextFormat::GREEN."Done!");
 	}
 	protected function initObjects(){
 		Team::init();
 		Hub::init();
+		Pvp::init();
 	}
 	protected function registerHandles(){
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess") as $e)
@@ -47,6 +53,36 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvent(
 				"pocketmine\\event\\".substr(strtolower($event), 0, 6)."\\".$event."Event", $this,
 				EventPriority::HIGH, new CallbackEventExe(array($this, "evt")), $this, false);
+	}
+	public function initCmds(){
+		$cmd = new PluginCommand("show", $this);
+		$cmd->setUsage("/show <invisible player|all>");
+		$cmd->setDescription("Attempt to show an invisible player");
+		$cmd->register($this->getServer()->getCommandMap());
+	}
+	public function onCommand(CommandSender $issuer, Command $cmd, $label, array $args){
+		switch($cmd->getName()){
+		case "show":
+			if(!($issuer instanceof Player)){
+				$issuer->sendMessage("You are not supposed to see any players here!");
+				return true;
+			}
+			if(@strtolower(@$args[0]) !== "all" and !(($p = Player::get(@$args[0])) instanceof Player))
+				return false;
+			if(strtolower($args[0]) !== "all"){
+				if($p->level->getName() === $issuer->level->getName())
+					$p->spawnTo($issuer);
+				else $issuer->sendMessage($p->getDisplayName()." is not in your world!");
+			}
+			else{
+				foreach(Player::getAll() as $p){
+					if($p->level->getName() === $issuer->level->getName())
+						$p->spawnTo($issuer);
+				}
+			}
+			return true;
+		}
+		return true;
 	}
 	public function evt(Event $event){
 		$class = explode("\\", get_class($event));
