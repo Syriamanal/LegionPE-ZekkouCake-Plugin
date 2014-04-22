@@ -2,6 +2,7 @@
 
 namespace pemapmodder\legionpe\mgs\pvp;
 
+use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\utils\CallbackEventExe as EvtExe;
 use pemapmodder\utils\CallbackPluginTask as Task;
 
@@ -14,8 +15,9 @@ use pocketmine\event\Listener;
 class Pvp implements Listener{
 	public function __construct(){
 		$this->server = Server::getInstance();
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), HubPlugin::get());
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), HubPlugin::get());
+		$this->hub = HubPlugin::get();
+		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
+		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
 	}
 	public function onDeath(Event $event){
 		$p = $event->getEntity();

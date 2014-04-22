@@ -29,6 +29,7 @@ class HubPlugin extends PluginBase implements Listener{
 	const LOGIN_MAX	= 0b1111;
 	protected $sessions = array();
 	protected $tmpPws = array();
+	public $dbs = array();
 	public function onLoad(){
 		self::$instance = $this;
 		$this->path = $this->getServer()->getDataPath()."Hub/";
