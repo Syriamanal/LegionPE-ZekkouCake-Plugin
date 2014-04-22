@@ -6,6 +6,7 @@ use pemapmodder\legionpe\geog\RawLocs as RL;
 use pemapmodder\utils\CallbackEventExe;
 use pemapmodder\utils\CallbackPluginTask;
 
+use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
@@ -19,13 +20,49 @@ class Hub implements Listener{
 		$pmgr = $this->server->getPluginManager();
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onInteract")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\entity\\EntityMoveEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onMove")), HubPlugin::get());
+		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerChatEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onChat")), HubPlugin::get());
+	}
+	public function onChat(Event $evt){
+		$pfxs = HubPlugin::get()->getDb($p = $evt->getPlayer())->get("prefixes");
+		$rec = array();
+		foreach($evt->getRecipients() as $r){
+			if($r->level->getName() === $p->level->getName())
+				$rec[] = $r;
+		}
+		$evt->setRecipients($rec);
+		$prefix = "";
+		foreach(HubPlugin::getPrefixOrder() as $pfxType=>$filter){
+			if(!$this->isFiltered($filter, $p->level->getName()))
+				$prefix .= ($pfxs[$pfxType]."|");
+		}
+		$format = $prefix."%s: %s";
+		$evt->setFormat($format);
+	}
+	private function isFiltered($filter, $dirt){
+		switch($filter){
+		case "all":
+			return false;
+		case "pvp":
+			return !in_array($dirt, array("world_pvp"));
+		case "pk":
+			return !in_array($dirt, array("world_parkour"));
+		case "ctf":
+			return !in_array($dirt, array("world_tmp_ctf", "world_base_ctf"));
+		case "spleef":
+			return stripos($dirt, "spleef") === false;
+		default: // invalid filter?
+			console("[WARNING] Invalid filter: \"$filter\"");
+			return false;
+		}
 	}
 	public function onInteract(Event $evt){
 		$tar = $evt->getBlock();
 		$p = $evt->getPlayer();
 	}
 	public function onMove(Event $evt){
-		$p = $evt->getPlayer();
+		$p = $evt->getEntity();
+		if(!($p instanceof Player))
+			return;
 		if(time() - @$this->teleports[strtolower($p->getName())] <= 3)
 			return;
 		if(RL::enterPvpPor()->isInside($p)){

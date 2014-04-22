@@ -47,7 +47,7 @@ class HubPlugin extends PluginBase implements Listener{
 		Pvp::init();
 	}
 	protected function registerHandles(){
-		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin") as $e)
+		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin", "PlayerQuit") as $e)
 			$this->addHandler($e);
 	}
 	protected function addHandler($event){
@@ -202,6 +202,8 @@ class HubPlugin extends PluginBase implements Listener{
 					}
 				}
 				break;
+			case "PlayerQuit":
+				$this->closeDb($p);
 			default:
 				console("[WARNING] Event ".get_class($event)." passed to listener at ".get_class()." but not listened to!");
 				break;
@@ -221,23 +223,34 @@ class HubPlugin extends PluginBase implements Listener{
 				new CallbackPluginTask(array($p, "teleport"), $this, array($s), true), 100);
 	}
 	// local utils //
+	public final static function getPrefixOrder(){
+		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "parkour"=>"pk");
+	}
 	private function openDb($p){
 		$config = new Config($this->playerPath.substr(strtolower($p->getName()), 0, 1)."/".strtolower($p->getName()), Config::YAML, array(
 			"pw-hash" => false,
 			"ip-auth" => false,
-			"prefixes" => array("kitpvp"=>"", "parkour"=>"", "kitpvp-rank"=>""),
+			"prefixes" => array(
+				"kitpvp"=>"",
+				"parkour"=>"",
+				"kitpvp-rank"=>"",
+				"rank"=>($rank = $this->getRank($p)) === "player" ? "":ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
 			"individuals" => array(),
 			"team" => false,
 		));
 		$this->dbs[strtolower($p->getName())] = $config;
 	}
-	private function getDb($p){
+	private function closeDb(Player $p){
+		$this->dbs[strtolower($p->getName())]->save();
+		unset($this->dbs[strtolower($p->getName())]);
+	}
+	public function getDb($p){
 		if(is_string($p))
 			$iname = strtolower($p);
 		else $iname = strtolower($p->getName());
 		return $this->dbs[$iname];
 	}
-	public function hash($string){
+	private function hash($string){
 		$salt = "";
 		for($i = strlen($string) - 1; $i >= 0; $i--)
 			$salt .= $string{$i};

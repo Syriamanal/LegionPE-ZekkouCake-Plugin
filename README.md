@@ -12,17 +12,17 @@ LegionPE ZekkouCake Plugins
  * Database: players count, points
  * Join signs
  * Score bars
-* Framework utils
- * Spaces (done)
+* Core utils
+ * Spaces
+ * Event simplifier
 * Raw map coordinates importing (semi-hardcoded)
+* Parkour plugin
 
 ## Tasks in progress
-* More framework utils
- * Portals (TODO in each minigame; wait pocketmine entities?)
+* More core utils
 * PvP plugin
  * Port data from old plugin
  * DIFF pocketmine entities?
-* Parkour plugin
 
 ## Tasks TODO
 * More core commands
@@ -45,3 +45,5 @@ LegionPE ZekkouCake Plugins
 * PocketMine updates
  * entities not ready
  * events for entities death and hurt
+* Raw locations
+ * minigame coords

@@ -1,7 +1,9 @@
-name:LegionPE-Delta
+name:LegionPE
 authors:
 - PEMapModder
-main: pemapmodder\legionpe\hub\HubPluin
+main: pemapmodder\legionpe\hub\HubPlugin
 load: startup
 prefix: LegionPE
 website: https://github.com/mcpesrccode/LegionPE-ZekkouCake-Plugin
+api: [1.0.0]
+version: Delta 3.0
