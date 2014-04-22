@@ -30,7 +30,9 @@ class HubPlugin extends PluginBase implements Listener{
 	protected $sessions = array();
 	protected $tmpPws = array();
 	public $dbs = array();
+	public $config;
 	public function onLoad(){
+		console(TextFormat::GREEN."Hub has been loaded!");
 		self::$instance = $this;
 		$this->path = $this->getServer()->getDataPath()."Hub/";
 		@mkdir($this->path);
@@ -39,13 +41,146 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	public function onEnable(){
 		console(TextFormat::AQUA."Initializing Hub... ", false);
-		$this->registerHandles();
 		$this->initObjects();
+		$this->registerHandles();
 		$this->initCmds();
 		$this->initRanks();
 		console(TextFormat::GREEN."Done!");
 	}
+	public function onDisable(){
+		console(TextFormat::AQUA."Finalizing Hub... ", false);
+		$this->config->save();
+		console(TextFormat::GREEN."Done!");
+	}
 	protected function initObjects(){ // initialize classes
+		if(true){
+			$this->config = new Config($this->getServer()->getDataPath()."general-config.yml", Config::YAML, array(
+				"kitpvp"=>array(
+					"prefixes"=>array(
+						"fighter"=>25,
+						"killer"=>75,
+						"dangerous"=>150,
+						"hard"=>250,
+						"beast"=>375,
+						"elite"=>525,
+						"warrior"=>675,
+						"knight"=>875,
+						"addict"=>1100,
+						"unstoppable"=>1350,
+						"professional"=>1625,
+						"hardcore"=>1925,
+						"master"=>2250,
+						"legendary"=>2600,
+					),
+					"auto-equip"=>array(
+						"player"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"donater"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"vip"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"vip-plus"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"vip-plus-plus"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"premium"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"sponsor"=>array(
+							"inventory"=>array(
+								array(360, 0, 1),
+								array(272, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>306,
+								"c"=>299,
+								"l"=>300,
+								"b"=>301
+							),
+						),
+						"staff"=>array(
+							"inventory"=>array(
+								array(364, 0, 1),
+								array(276, 0, 1),
+							),
+							"armor"=>array(
+								"h"=>310,
+								"c"=>299,
+								"l"=>300,
+								"b"=>313
+							),
+						),
+					),
+					"top-kills"=>array(
+						"Avery Bills"=>4,
+						"Cindy Daniels"=>3,
+						"Elvin Farmer"=>2,
+						"Gregor Hill"=>1,
+						"Ivan Jones"=>0,
+					),
+				),
+				
+			));
+		}
 		Team::init();
 		Hub::init();
 		Pvp::init();
@@ -299,7 +434,7 @@ class HubPlugin extends PluginBase implements Listener{
 		return "player";
 	}
 	public final static function getPrefixOrder(){ // get the order of prefixes as well as filters
-		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "parkour"=>"pk");
+		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "kitpvp-kills"=>"pvp", "parkour"=>"pk");
 	}
 	private function openDb($p){ // open and initialize the database of a player
 		@mkdir($path = $this->playerPath.substr(strtolower($p->getName()), 0, 1)."/");
@@ -308,6 +443,7 @@ class HubPlugin extends PluginBase implements Listener{
 			"ip-auth" => false,
 			"prefixes" => array(
 				"kitpvp"=>"",
+				"kitpvp-kills"=>"",
 				"parkour"=>"",
 				"kitpvp-rank"=>"",
 				"rank"=>($rank = $this->getRank($p)) === "player" ? "":
