@@ -38,8 +38,7 @@ LegionPE ZekkouCake Plugins
  * Better name?
 
 # Data storage
-* Decision: YAML
-> not JSON
+* Decision: YAML (not JSON)
 * Database conversion (port amai beetroot database)
 
 # Difficulties
