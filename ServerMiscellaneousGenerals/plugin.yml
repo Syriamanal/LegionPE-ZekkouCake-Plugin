@@ -1,0 +1,6 @@
+name: ServerMiscellaneousGenerals
+version: beta 0
+api: [1.0.0]
+author: PEMapModder
+load: postworld
+main: pemapmodder\smg\Main
