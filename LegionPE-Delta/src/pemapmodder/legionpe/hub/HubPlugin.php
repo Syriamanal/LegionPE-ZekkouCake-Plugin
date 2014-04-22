@@ -229,7 +229,7 @@ class HubPlugin extends PluginBase implements Listener{
 				}
 			case "PlayerCommandPreprocess":
 			case "PlayerInteract":
-				if($this->sessions[$p->getName() !== self::ONLINE){ // disallow logging in
+				if($this->sessions[$p->getName()] !== self::ONLINE){ // disallow logging in
 					$event->setCancelled(true);
 					$p->sendMessage("Please login/register first!");
 				}
@@ -311,9 +311,20 @@ class HubPlugin extends PluginBase implements Listener{
 				"kitpvp-rank"=>"",
 				"rank"=>($rank = $this->getRank($p)) === "player" ? "":
 						ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
-			"individuals" => array(),
+			"individuals" => array("kitpvp"=>array("kills"=>0, "deaths"=>0), "parkour"=>array(), "spleef"=>array(), "ctf"=>array()),
 			"team" => false,
+			"mute" => false
 		));
+		$path = $this->getServer()->getDataPath()."SKC-Rewrite/player-databases/".strtolower($p->getName(){0})."/{$p->getName()}.txt";
+		if(($yaml = @\file_get_contents($path)) !== false){
+			$data = \yaml_parse($yaml);
+			$i = $config->get("individuals");
+			$i["kitpvp"]["kills"] = $data["kills"];
+			$i["kitpvp"]["deaths"] = $data["deaths"];
+			$config->set("individuals", $i);
+			$config->set("mute", @$data["mute"]);
+			$config->save();
+		}
 		$this->dbs[strtolower($p->getName())] = $config;
 	}
 	private function closeDb(Player $p){ // save and finalize the database of a player
