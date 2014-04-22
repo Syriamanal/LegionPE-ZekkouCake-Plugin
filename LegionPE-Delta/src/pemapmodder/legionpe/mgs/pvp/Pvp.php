@@ -21,11 +21,19 @@ class Pvp implements Listener{
 		$p = $event->getEntity();
 		if(!($p instanceof Player)) return;
 		$cause = $event->getCause();
+		if($cause instanceof Player){
+			$this->onKill($cause);
+		}
 	}
 	public function onHurt(Event $event){
 		$p = $event->getEntity();
 		if(!($p instanceof Player)) return;
 		$cause = $event->getCause();
+		if(in_array($cause, array("suffocation", "falling")))
+			$event->setCancelled();
+	}
+	public function onKill(Player $killer){
+		
 	}
 	public static $inst = false;
 	public static function init(){
