@@ -38,7 +38,8 @@ LegionPE ZekkouCake Plugins
  * Better name?
 
 # Data storage
-* Decision: --JSON-- or YAML?
+* Decision: YAML
+--JSON--
 * Database conversion (port amai beetroot database)
 
 # Difficulties
