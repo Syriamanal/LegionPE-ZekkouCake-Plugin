@@ -39,7 +39,7 @@ LegionPE ZekkouCake Plugins
 
 # Data storage
 * Decision: YAML
---JSON--
+> not JSON
 * Database conversion (port amai beetroot database)
 
 # Difficulties
