@@ -2,6 +2,10 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pocketmine\Player;
+use pocketmine\block\Block;
+use pocketmine\level\Position;
+
 class Arena{
 	public function __construct(Position $topCentre, $radius,
 			$height, $floors, $players,
