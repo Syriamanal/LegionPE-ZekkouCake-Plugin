@@ -7,6 +7,7 @@ LegionPE ZekkouCake Plugins
 * Auth API
  * Main plugin array field $sessions
  * Non-logged-in action blockage: pre-login world for that?
+ * IP auth customization
 * Teams API
  * Save at PocketMine-MP/LegionPE/teams/team-@teamId.yml (or json)
  * Database: players count, points

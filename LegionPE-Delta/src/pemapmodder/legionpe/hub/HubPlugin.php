@@ -5,6 +5,7 @@ namespace pemapmodder\legionpe\hub;
 use pemapmodder\legionpe\geog\RawLocs as Loc;
 use pemapmodder\legionpe\geog\Position as MyPos;
 use pemapmodder\legionpe\mgs\pvp\Pvp;
+use pemapmodder\legionpe\mgs\pk\Pk;
 
 use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
@@ -13,6 +14,7 @@ use pocketmine\Player;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
+use pocketmine\command\RemoteConsoleCommandSender as RCon;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
 use pocketmine\level\Level;
@@ -42,41 +44,50 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->initRanks();
 		console(TextFormat::GREEN."Done!");
 	}
-	protected function initObjects(){
+	protected function initObjects(){ // initialize classes
 		Team::init();
 		Hub::init();
 		Pvp::init();
+		Pk::init();
 	}
-	protected function registerHandles(){
+	protected function registerHandles(){ // register events
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin", "PlayerQuit") as $e)
 			$this->addHandler($e);
 	}
-	protected function addHandler($event){
+	protected function addHandler($event){ // local add handler function
 		$this->getServer()->getPluginManager()->registerEvent(
 				"pocketmine\\event\\".substr(strtolower($event), 0, 6)."\\".$event."Event", $this,
 				EventPriority::HIGHEST, new CallbackEventExe(array($this, "evt")), $this, false);
 	}
-	public function initCmds(){
+	public function initCmds(){ // register commands
 		$cmd = new PluginCommand("show", $this);
 		$cmd->setUsage("/show <invisible player|all>");
 		$cmd->setDescription("Attempt to show an invisible player");
 		$cmd->register($this->getServer()->getCommandMap());
+		$cmd = new PluginCommand("hide", $this);
+		$cmd->setUsage("/hide <player to hide>");
+		$cmd->setDescription("Make a player invisible to you");
+		$cmd->register($this->getServer()->getCommandMap());
+		$cmd = new PluginCommand("auth", $this);
+		$cmd->setUsage("/auth <ip|help> [args ...]");
+		$cmd->register($his->getServer()->getCommandMap());
 	}
-	public function onCommand(CommandSender $issuer, Command $cmd, $label, array $args){
+	public function onCommand(CommandSender $issuer, Command $cmd, $label, array $args){ // handle commands
 		switch($cmd->getName()){
 		case "show":
-			if(!($issuer instanceof Player)){
+			if(!($issuer instanceof Player)){ // yell at whoever typed this, if not a player
 				$issuer->sendMessage("You are not supposed to see any players here!");
 				return true;
 			}
-			if(@strtolower(@$args[0]) !== "all" and !(($p = Player::get(@$args[0])) instanceof Player))
+			if(@strtolower(@$args[0]) !== "all" and !(($p = Player::get(@$args[0])) instanceof Player)){ // show usage, if invalid args
 				return false;
-			if(strtolower($args[0]) !== "all"){
+			}
+			if(strtolower($args[0]) !== "all"){ // spawn a player, if player specified
 				if($p->level->getName() === $issuer->level->getName())
 					$p->spawnTo($issuer);
 				else $issuer->sendMessage($p->getDisplayName()." is not in your world!");
 			}
-			else{
+			else{ // spawn all players, if player not specified
 				foreach(Player::getAll() as $p){
 					if($p->level->getName() === $issuer->level->getName())
 						$p->spawnTo($issuer);
@@ -84,27 +95,63 @@ class HubPlugin extends PluginBase implements Listener{
 			}
 			break;
 		case "hide":
-			if(!($issuer instanceof Player)){
+			if(!($issuer instanceof Player)){ // yell at whoever typed this, if not a player
 				$issuer->sendMessage("You are not supposed to see any players here!");
 				return true;
 			}
-			if(!isset($args[0]) or !(($p = Player::get($args[0])) instanceof Player))
+			if(!isset($args[0]) or !(($p = Player::get($args[0])) instanceof Player)){ // show usage, if invalid args
 				return false;
-			$p->despawnFrom($issuer);
-			$issuer->sendMessage("You can no longer see ".$p->getDisplayName()." now.");
+			}
+			$p->despawnFrom($issuer); // operate
+			$issuer->sendMessage("{$p->getDisplayName()} is now invisible to you.");
+			break;
+		case "auth":
+			if(!($issuer instanceof Player)){
+				$issuer->sendMessage("What? You need to authenticate?");
+				if($issuer instanceof RCon) // just too bored? xD
+					$isuer->sendMessage("OK, but you don't manage the RCON password here, right?");
+				return true;
+			}
+			$subcmd = @array_shift($args);
+			switch($subcmd){ // manage subcommand
+				case "ip": // ip-auth settings
+					if(isset($args[0])){
+						if(strtolower($args[0]) === "on"){
+							$this->getDb($issuer)->set("ip-auth", $issuer->getAddress());
+							$issuer->sendMessage("Your IP-auth is now on with value \"{$issuer->getAddress()}\".");
+							break 2;
+						}
+						if(strtolower($args[0]) === "off"){
+							$this->getDb($issuer)->set("ip-auth", false);
+							$issuer->sendMessage("Your IP-auth has been turned off.");
+							break 2;
+						}
+					}
+					$issuer->sendMessage("Your IP-auth is ".(($s = $this->getDb($issuer)->get("ip-auth")) === false ? "off.":
+							"on with value \"$s\"."));
+					break;
+				case "help":
+				case false:
+				default:
+					$issuer->sendMessage("Usage: /auth <ip|help> [args ...]");
+					$issuer->sendMessage("/auth <ip> [on|off|any words]");
+					$issuer->sendMessage("/auth <help>");
+					break;
+			}
 			break;
 		}
 		return true;
 	}
-	public function evt(Event $event){
+	public function evt(Event $event){ // handle events
 		$class = explode("\\", get_class($event));
 		$class = $class[count($class) - 1];
-                if(is_callable(array($event, "getPlayer")))
-                    $p = $event->getPlayer();
-		switch(substr($class, 0, -5)){
-			case "PlayerLogin":
+		if(is_callable(array($event, "getPlayer"))){ // if is player event, store player into $p
+			$p = $event->getPlayer();
+		}
+		switch(substr($class, 0, -5)){ handle events
+			case "PlayerLogin": // what the **** I put it here for...
 				break;
-			case "PlayerJoin":
+			case "PlayerJoin": // open database, check password (decide (registry wizard / IP auth / password auth))
 				// console("[INFO] ".$p->getDisplayName()." entered the game.");
 				$event->setMessage("");
 				$this->openDb($p);
@@ -124,9 +171,10 @@ class HubPlugin extends PluginBase implements Listener{
 					$this->sessions[$p->getName()] = self::LOGIN;
 				}
 				break;
-			case "PlayerChat":
-				if(($s = $this->sessions[$p->getName()]) !== 0b100) // if not authed
+			case "PlayerChat": // if session is not self::ONLINE, monitor it. if session is self::ONLINE, prevent typing password here
+				if(($s = $this->sessions[$p->getName()]) !== 0b100){ // if not authed
 					$event->setCancelled(true);
+				}
 				elseif($this->getDb($p)->get("pw-hash") === $this->hash($event->getMessage())){ // if authed but is telling password
 					$event->setCancelled(true);
 					$p->sendMessage("Never talk loudly to others your password!");
@@ -155,6 +203,10 @@ class HubPlugin extends PluginBase implements Listener{
 				elseif($s === self::LOGIN){ // check password, if session is waiting login
 					$hash = $this->getDb($p)->get("pw-hash");
 					if($this->hash($event->getMessage()) === $hash){ // auth, if password matches
+						if($this->getDb($p)->get("ip-auth") !== false){ // update IP
+							$this->getDb($p)->set("ip-auth", $p->getAddress());
+							$p->sendMessage("Your IP address has been updated to \"{$p->getAddress()}\".");
+						}
 						$this->onAuthPlayer($p);
 					}
 					else{ // add session, if password doesn't match
@@ -172,11 +224,12 @@ class HubPlugin extends PluginBase implements Listener{
 			case "EntityArmorChange":
 			case "EntityMove":
 				$p = $event->getEntity();
-				if(!($p instanceof Player))
+				if(!($p instanceof Player)){ // only for players, not entities
 					break;
+				}
 			case "PlayerCommandPreprocess":
 			case "PlayerInteract":
-				if($this->sessions[$p->getName() !== self::ONLINE){
+				if($this->sessions[$p->getName() !== self::ONLINE){ // disallow logging in
 					$event->setCancelled(true);
 					$p->sendMessage("Please login/register first!");
 				}
@@ -210,59 +263,70 @@ class HubPlugin extends PluginBase implements Listener{
 				break;
 		}
 	}
-	public function onRegistered(Player $p){
+	public function onRegistered(Player $p){ // set session to self::ONLINE and choose team, on registry success
 		$p->teleport(Loc::chooseTeamStd());
+		$this->sessions[$p->getName()] = self::ONLINE;
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
-	public function onAuthPlayer(Player $p){
+	public function onAuthPlayer(Player $p){ // set session to self::ONLINE, tp to spawn, ensure tp, call PlayerAuthEvent
 		$this->sessions[$p->getName()] = self::ONLINE;
 		$p->sendChat("You have successfully logged in into LegionPE!");
-		$s = Level::get("world")->getSafeSpawn();
+		$s = Loc::spawn();
 		$p->teleport($s);
 		$this->getServer()->getPluginManager()->callEvent(new PlayerAuthEvent($p));
 		$this->getServer()->getScheduler()->scheduleDelayedTask(
 				new CallbackPluginTask(array($p, "teleport"), $this, array($s), true), 100);
 	}
-	public function initRanks(){
-		$def = array("donater"=>array(), "vip"=>array(), "vip-plus"=>array(), "vip-plus-plus"=>array(), "premium"=>array(), "sponsor"=>array(), "staff"=>array("pemapmodder", "lambo", "spyduck")); // with reference to http://legionpvp.eu
+	public function initRanks(){ // initialize ranks
+		$def = array(
+			"donater"=>array(),
+			"vip"=>array(),
+			"vip-plus"=>array(),
+			"vip-plus-plus"=>array(),
+			"premium"=>array(),
+			"sponsor"=>array(),
+			"staff"=>array("pemapmodder", "lambo", "spyduck"));
+		// with reference to http://legionpvp.eu
 		$this->ranks = new Config($this->getServer()->getDataPath()."ranks.yml", Config::YAML, $def);
 	}
 	// local utils //
-	public function getRank($p){
+	public function getRank($p){ // get the lowercase rank of a player
 		foreach($this->ranks->getAll() as $rank=>$names){
-			if(in_array($p->strtolower(getName()), $names))
+			if(in_array(strtolower($p->getName()), $names))
 				return $rank;
 		}
 		return "player";
 	}
-	public final static function getPrefixOrder(){
+	public final static function getPrefixOrder(){ // get the order of prefixes as well as filters
 		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "parkour"=>"pk");
 	}
-	private function openDb($p){
-		$config = new Config($this->playerPath.substr(strtolower($p->getName()), 0, 1)."/".strtolower($p->getName()), Config::YAML, array(
-			"pw-hash" => false,
+	private function openDb($p){ // open and initialize the database of a player
+		@mkdir($path = $this->playerPath.substr(strtolower($p->getName()), 0, 1)."/");
+		$config = new Config($path.strtolower($p->getName()), Config::YAML, array(
+			"pw-hash" => false, // I don't care whether they are first time or not, just care they registered or not
 			"ip-auth" => false,
 			"prefixes" => array(
 				"kitpvp"=>"",
 				"parkour"=>"",
 				"kitpvp-rank"=>"",
-				"rank"=>($rank = $this->getRank($p)) === "player" ? "":ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
+				"rank"=>($rank = $this->getRank($p)) === "player" ? "":
+						ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
 			"individuals" => array(),
 			"team" => false,
 		));
 		$this->dbs[strtolower($p->getName())] = $config;
 	}
-	private function closeDb(Player $p){
+	private function closeDb(Player $p){ // save and finalize the database of a player
 		$this->dbs[strtolower($p->getName())]->save();
 		unset($this->dbs[strtolower($p->getName())]);
 	}
-	public function getDb($p){
+	public function getDb($p){ // get the database of a player
 		if(is_string($p))
 			$iname = strtolower($p);
 		else $iname = strtolower($p->getName());
-		return $this->dbs[$iname];
+		return @$this->dbs[$iname];
 	}
-	private function hash($string){
+	private function hash($string){ // top secret: password hash (very safe hash indeed... so much salt...)
 		$salt = "";
 		for($i = strlen($string) - 1; $i >= 0; $i--)
 			$salt .= $string{$i};
@@ -270,7 +334,7 @@ class HubPlugin extends PluginBase implements Listener{
 		return bin2hex((0xdeadc0de * hash(hash_algos()[17], $string.$salt, true)) ^ (0x6a7e1ee7 * hash(hash_algos()[31], strtolower($salt).$string, true)));
 	}
 	public static $instance = false;
-	public static function get(){
+	public static function get(){ // get instance
 		return self::$instance;
 	}
 }
