@@ -54,7 +54,7 @@ class Pvp implements Listener{
 		if(!($p instanceof Player)) return;
 		$cause = $event->getCause();
 		if(in_array($cause, array("suffocation", "falling")))
-			$event->setCancelled();
+			$event->setCancelled(true);
 	}
 	public function onKill(Player $killer){
 		$db = $this->hub->getDb($killer);
