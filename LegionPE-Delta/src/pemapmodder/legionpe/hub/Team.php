@@ -13,6 +13,10 @@ use pocketmine\tile\Tile;
 class Team implements \ArrayAccess{
 	// static
 	public static $teams = array();
+	public static function get(&$i){
+		$i &= 0b11;
+		return self::$teams[$i];
+	}
 	public static function init(){
 		for($i = 0; $i < 4; $i++)
 			self::$teams[$i] = new self($i);
@@ -44,6 +48,11 @@ class Team implements \ArrayAccess{
 			$scores[$i] = self::$teams[$i]["points"];
 		}
 		$max = max($scores);
+		for($i = 0; $i < 4; $i++){
+			$percent = $scores[$i] / $max * 100;
+			RL::teamScoreBar($i, $percent)->setBlocks(Block::get(35, self::$teams[$i]["color-meta"]));
+		}
+		\console("[INFO] Hub score bars have been updated.");
 	}
 	// non-static
 	public $config = array();
@@ -55,7 +64,7 @@ class Team implements \ArrayAccess{
 		}
 		else{
 			$this->config["name"] = array("magma", "lapiz", "lilac", "lime")[$i];
-			$this->config["color-meta"] = array(1, 2, 3, 5)[$i];
+			$this->config["color-meta"] = array(1, 3, 10, 5)[$i];
 			$this->config["points"] = 1000;
 			$this->config["members-cnt"] = 10;
 			\file_put_contents($path, \yaml_emit($this->config));
@@ -65,10 +74,15 @@ class Team implements \ArrayAccess{
 		if(self::canJoin($this->team)){
 			$this->config["members-cnt"]++;
 			self::updateSigns();
+			return "SUCCESS";
 		}
+		return "FULL";
 	}
 	public function getTeam(){
 		return $this->team;
+	}
+	public function __toString(){
+		return $this->config["name"];
 	}
 	public function offsetExists($key){
 		return array_key_exists($key, $this->config);

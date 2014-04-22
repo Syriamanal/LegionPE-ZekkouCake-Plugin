@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\hub;
 
 use pemapmodder\legionpe\geog\RawLocs as Loc;
+use pemapmodder\legionpe\geog\Position as MyPos;
 use pemapmodder\legionpe\mgs\pvp\Pvp;
 
 use pemapmodder\utils\CallbackPluginTask;
@@ -52,7 +53,7 @@ class HubPlugin extends PluginBase implements Listener{
 	protected function addHandler($event){
 		$this->getServer()->getPluginManager()->registerEvent(
 				"pocketmine\\event\\".substr(strtolower($event), 0, 6)."\\".$event."Event", $this,
-				EventPriority::HIGH, new CallbackEventExe(array($this, "evt")), $this, false);
+				EventPriority::HIGHEST, new CallbackEventExe(array($this, "evt")), $this, false);
 	}
 	public function initCmds(){
 		$cmd = new PluginCommand("show", $this);
@@ -80,7 +81,17 @@ class HubPlugin extends PluginBase implements Listener{
 						$p->spawnTo($issuer);
 				}
 			}
-			return true;
+			break;
+		case "hide":
+			if(!($issuer instanceof Player)){
+				$issuer->sendMessage("You are not supposed to see any players here!");
+				return true;
+			}
+			if(!isset($args[0]) or !(($p = Player::get($args[0])) instanceof Player))
+				return false;
+			$p->despawnFrom($issuer);
+			$issuer->sendMessage("You can no longer see ".$p->getDisplayName()." now.");
+			break;
 		}
 		return true;
 	}
@@ -93,57 +104,62 @@ class HubPlugin extends PluginBase implements Listener{
 			case "PlayerLogin":
 				break;
 			case "PlayerJoin":
+				// console("[INFO] ".$p->getDisplayName()." entered the game.");
 				$event->setMessage("");
 				$this->openDb($p);
-				if($this->getDb($p)->get("pw-hash") === false){
+				if($this->getDb($p)->get("pw-hash") === false){ // request register (LegionPE registry wizard), if password doesn't exist
 					$this->sessions[$p->getName()] = self::REGISTER;
 					$p->sendMessage("Welcome to the LegionPE account registry wizard.");
 					$p->sendMessage("Step 1:");
 					$p->sendMessage("Please type your password in chat and send it. Don't worry, other players won't be able to read it.");
 				}
-				elseif($this->getDb($p)->get("ip-auth") === $p->getAddress()){
+				elseif($this->getDb($p)->get("ip-auth") === $p->getAddress()){ // authenticate, if ip auth enabled and matches
 					$p->sendMessage("You have been authenticated by your IP address.");
 					$this->sessions[$p->getName()] = self::ONLINE;
 					$this->onAuthPlayer($p);
 				}
-				else{
+				else{ // request login (normal), if password exists and ip auth not enabled or not matched
 					$p->sendMessage("Please type your password in chat and send it. Don't worry, other players won't be able to read it.");
 					$this->sessions[$p->getName()] = self::LOGIN;
 				}
 				break;
 			case "PlayerChat":
-				if(($s = $this->sessions[$p->getName()]) !== 0b100)
+				if(($s = $this->sessions[$p->getName()]) !== 0b100) // if not authed
 					$event->setCancelled(true);
-				if($s === self::REGISTER){
+				elseif($this->getDb($p)->get("pw-hash") === $this->hash($event->getMessage())){ // if authed but is telling password
+					$event->setCancelled(true);
+					$p->sendMessage("Never talk loudly to others your password!");
+				}
+				if($s === self::REGISTER){ // request repeat password: registry wizard step 1
 					$this->tmpPws[$p->getName()] = $event->getMessage();
 					$p->sendMessage("Step 2:");
 					$p->sendMessage("Please enter your password again to confirm.");
 					$this->sessions[$p->getName()] ++;
 				}
-				if($s === self::REGISTER + 1){
-					if($this->tmpPws[$p->getName()] === $event->getMessage()){
+				elseif($s === self::REGISTER + 1){ // check repeated password: registry wizard step 2
+					if($this->tmpPws[$p->getName()] === $event->getMessage()){ // choose team, if matches password
 						$p->sendMessage("The password matches! Type this password into your chat and send it next time you login.");
-						$p->sendMessage("LegionPE registry wizard closed!"); // TODO anything else I need to check?
+						$p->sendMessage("LegionPE registry wizard closed!"); // TODO anything else I need to request?
 						$this->getDb($p)->set("pw-hash", $this->hash($event->getMessage()));
-						$this->sessions[$p->getName()] = self::ONLINE;
+						$this->sessions[$p->getName()]++;
 						unset($this->tmpPws[$p->getName()]);
 						$this->onRegistered($p);
 					}
-					else{
+					else{ // if password different
 						$p->sendMessage("Password doesn't match! Going back to step 1.");
 						$p->sendMessage("Please type your password in the chat.");
 						$this->sessions[$p->getName()] = self::REGISTER;
 					}
 				}
-				else{
+				elseif($s === self::LOGIN){ // check password, if session is waiting login
 					$hash = $this->getDb($p)->get("pw-hash");
-					if($this->hash($event->getMessage()) === $hash){
+					if($this->hash($event->getMessage()) === $hash){ // auth, if password matches
 						$this->onAuthPlayer($p);
 					}
-					else{
+					else{ // add session, if password doesn't match
 						$p->sendMessage("Password doesn't match! Please try again.");
 						$this->sessions[$p->getName()] ++;
-						if($s >= self::LOGIN_MAX){
+						if($s >= self::LOGIN_MAX){ // if reaches maximum trials of login
 							$p->sendMessage("You exceeded the max number of trials to login! You are being kicked.");
 							$this->getServer()->getScheduler()->scheduleDelayedTask(
 									new CallbackPluginTask(array($p, "close"), $this, array("Failing to auth.", "Auth failure"), true), 80);
@@ -151,6 +167,7 @@ class HubPlugin extends PluginBase implements Listener{
 					}
 				}
 				break;
+			// protect|block player whilst logging in/registering
 			case "EntityArmorChange":
 			case "EntityMove":
 				$p = $event->getEntity();
@@ -158,9 +175,31 @@ class HubPlugin extends PluginBase implements Listener{
 					break;
 			case "PlayerCommandPreprocess":
 			case "PlayerInteract":
-				if($this->sessions[$p->getname() !== self::ONLINE){
+				if($this->sessions[$p->getName() !== self::ONLINE){
 					$event->setCancelled(true);
-					$p->sendChat("Please login/register first!");
+					$p->sendMessage("Please login/register first!");
+				}
+				elseif($event instanceof \pocketmine\event\player\PlayerInteractEvent){ // check if is tapping join team signs, if is block touch
+					$block = new MyPos($event->getBlock());
+					if($block->level->getName() === Loc::hub()->getName()){
+						for($i = 0; $i < 4; $i++){
+							if($block->equals(Loc::chooseTeamSign($i))){
+								if($this->getDb($p)->get("team") === false){
+									$team = Team::get($i);
+									if(($reason = $team->join($p)) === "SUCCESS"){
+										$this->getDb($p)->set("team", $i);
+										$p->sendMessage("$reason! You are now a member of team $team!");
+										$p->teleport(Loc::spawn());
+										$this->onAuthPlayer($p);
+									}
+									else{
+										$p->sendMessage("Failure to join team $team. Reason: $reason");
+									}
+								}
+								break;
+							}
+						}
+					}
 				}
 				break;
 			default:
@@ -173,6 +212,7 @@ class HubPlugin extends PluginBase implements Listener{
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
 	public function onAuthPlayer(Player $p){
+		$this->sessions[$p->getName()] = self::ONLINE;
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Level::get("world")->getSafeSpawn();
 		$p->teleport($s);
@@ -187,18 +227,22 @@ class HubPlugin extends PluginBase implements Listener{
 			"ip-auth" => false,
 			"prefixes" => array("kitpvp"=>"", "parkour"=>"", "kitpvp-rank"=>""),
 			"individuals" => array(),
+			"team" => false,
 		));
 		$this->dbs[strtolower($p->getName())] = $config;
 	}
 	private function getDb($p){
-		return $this->dbs[strtolower($p->getName())];
+		if(is_string($p))
+			$iname = strtolower($p);
+		else $iname = strtolower($p->getName());
+		return $this->dbs[$iname];
 	}
 	public function hash($string){
 		$salt = "";
 		for($i = strlen($string) - 1; $i >= 0; $i--)
 			$salt .= $string{$i};
-		$salt = crypt($string, $salt);
-		return bin2hex(hash(hash_algos()[17], $string.$salt, true) ^ hash(hash_algos()[31], strtolower($salt).$string, true));
+		$salt = @crypt($string, $salt);
+		return bin2hex((0xdeadc0de * hash(hash_algos()[17], $string.$salt, true)) ^ (0x6a7e1ee7 * hash(hash_algos()[31], strtolower($salt).$string, true)));
 	}
 	public static $instance = false;
 	public static function get(){
