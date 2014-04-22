@@ -311,17 +311,20 @@ class HubPlugin extends PluginBase implements Listener{
 				"kitpvp-rank"=>"",
 				"rank"=>($rank = $this->getRank($p)) === "player" ? "":
 						ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
-			"individuals" => array("kitpvp"=>array("kills"=>0, "deaths"=>0), "parkour"=>array(), "spleef"=>array(), "ctf"=>array()),
+			"kitpvp"=>array("kills"=>0, "deaths"=>0),
+			"parkour"=>array(),
+			"spleef"=>array(),
+			"ctf"=>array(),
 			"team" => false,
 			"mute" => false
 		));
 		$path = $this->getServer()->getDataPath()."SKC-Rewrite/player-databases/".strtolower($p->getName(){0})."/{$p->getName()}.txt";
 		if(($yaml = @\file_get_contents($path)) !== false){
 			$data = \yaml_parse($yaml);
-			$i = $config->get("individuals");
-			$i["kitpvp"]["kills"] = $data["kills"];
-			$i["kitpvp"]["deaths"] = $data["deaths"];
-			$config->set("individuals", $i);
+			$i = $config->get("kitpvp");
+			$i["kills"] = $data["kills"];
+			$i["deaths"] = $data["deaths"];
+			$config->set("kitpvp", $i);
 			$config->set("mute", @$data["mute"]);
 			$config->save();
 		}
