@@ -18,7 +18,7 @@ class Hub implements Listener{
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$pmgr = $this->server->getPluginManager();
-		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onInteract")), HubPlugin::get());
+		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::LOW, new CallbackEventExe(array($this, "onInteractLP")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\entity\\EntityMoveEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onMove")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerChatEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onChat")), HubPlugin::get());
 	}
@@ -55,9 +55,10 @@ class Hub implements Listener{
 			return false;
 		}
 	}
-	public function onInteract(Event $evt){
-		$tar = $evt->getBlock();
+	public function onInteractLP(Event $evt){
 		$p = $evt->getPlayer();
+		if(HubPlugin::getRank($p) !== "staff")
+			$evt->setCancelled(true);
 	}
 	public function onMove(Event $evt){
 		$p = $evt->getEntity();
