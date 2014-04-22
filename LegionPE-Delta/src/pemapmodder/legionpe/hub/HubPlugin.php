@@ -5,7 +5,7 @@ namespace pemapmodder\legionpe\hub;
 use pemapmodder\legionpe\geog\RawLocs as Loc;
 use pemapmodder\legionpe\geog\Position as MyPos;
 use pemapmodder\legionpe\mgs\pvp\Pvp;
-use pemapmodder\legionpe\mgs\pk\Pk;
+use pemapmodder\legionpe\mgs\pk\Parkour as Pk;
 
 use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
