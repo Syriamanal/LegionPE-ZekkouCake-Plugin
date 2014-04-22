@@ -171,8 +171,8 @@ class HubPlugin extends PluginBase implements Listener{
 						),
 					),
 					"top-kills"=>array(
-						"Avery Bills"=>4,
-						"Cindy Daniels"=>3,
+						"Avery Black"=>4,
+						"Cindy Donalds"=>3,
 						"Elvin Farmer"=>2,
 						"Gregor Hill"=>1,
 						"Ivan Jones"=>0,
