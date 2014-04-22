@@ -1,9 +1,12 @@
 LegionPE ZekkouCake Plugins
 ===
 
+# Tasks
+
 ## Tasks done
 * Core commands
  * /show and /hide
+ * /auth
 * Auth API
  * Main plugin array field $sessions
  * Non-logged-in action blockage: pre-login world for that?
@@ -18,33 +21,47 @@ LegionPE ZekkouCake Plugins
  * Event simplifier
 * Raw map coordinates importing (semi-hardcoded)
 * Parkour plugin
+* PvP plugin
+* Prefix
+* Amai Beetroot data conversion
+ * PvP items ans armor config conversion aborted and will not be done
 
 ## Tasks in progress
 * More core utils
-* PvP plugin
- * Port data from old plugin
- * DIFF pocketmine entities?
+ * What exactly are they? #_#
+* DIFF pocketmine entities?
+* @_@ not debugging…
 
 ## Tasks TODO
 * More core commands
-* Prefix API
+ * What exactly are they? #_#
 * Spleef plugin
  * DIFF  pocketmine entities?
 * CTF plugin
- * later... where is the world?
+ * later... where is the world? Hello @SpyDuck?
 
 ## Tasks low-priority/optional TODO
 * Minigame inheritance
 * Build and Guess (from Draw stuffs from MCPC)
  * Better name?
 
-# Data storage
-* Decision: YAML (not JSON)
-* Database conversion (port amai beetroot database)
-
+===
 # Difficulties
 * PocketMine updates
  * entities not ready
  * events for entities death and hurt
 * Raw locations
  * minigame coords
+
+===
+# Debugging
+
+## Items
+(sorted by priorities)
+
+* Syntax errors
+* Multiplayer bugs
+* Typos
+
+## Done
+* None of course :(
