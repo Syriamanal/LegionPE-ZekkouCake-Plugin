@@ -39,6 +39,7 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->registerHandles();
 		$this->initObjects();
 		$this->initCmds();
+		$this->initRanks();
 		console(TextFormat::GREEN."Done!");
 	}
 	protected function initObjects(){
@@ -222,7 +223,18 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->getServer()->getScheduler()->scheduleDelayedTask(
 				new CallbackPluginTask(array($p, "teleport"), $this, array($s), true), 100);
 	}
+	public function initRanks(){
+		$def = array("donater"=>array(), "vip"=>array(), "vip-plus"=>array(), "vip-plus-plus"=>array(), "premium"=>array(), "sponsor"=>array(), "staff"=>array("pemapmodder", "lambo", "spyduck")); // with reference to http://legionpvp.eu
+		$this->ranks = new Config($this->getServer()->getDataPath()."ranks.yml", Config::YAML, $def);
+	}
 	// local utils //
+	public function getRank($p){
+		foreach($this->ranks->getAll() as $rank=>$names){
+			if(in_array($p->strtolower(getName()), $names))
+				return $rank;
+		}
+		return "player";
+	}
 	public final static function getPrefixOrder(){
 		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "parkour"=>"pk");
 	}
