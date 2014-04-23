@@ -43,7 +43,7 @@ class Arena{
 		$unwons = $s["unwons"];
 		$db->set("spleef", $s);
 		$db->save();
-		Team::get($this->hub->getDb($player)->get("team"))["points"] -= 2;
+		Team::get($this->hub->getDb($player)->get("team"))["points"]--;
 		$player->sendMessage("You now have $unwons unwon spleef tournament".($s > 1 ? "s":"")."! Team score -1!");
 		unset($this->players[$player->getCID()]);
 		foreach($this->players as $p)

@@ -32,11 +32,11 @@ class Pvp implements Listener{
 			$this->onKill($cause);
 			$cause->sendMessage("You killed {$p->getDisplayName()}!");
 			$cause->sendMessage("Team points +2!");
-			Team::get($this->hub->getDb($cause))["points"] += 2;
+			Team::get($this->hub->getDb($cause)->get("team"))["points"] += 2;
 			$this->pvpDies[$p->getName()] = true;
 			$p->sendMessage("You have been killed by {$cause->getDisplayName()}!");
 		}
-		$p->
+		Team::get($this->hub->getDb($p)->get("team"))["points"]--;
 		$config = $this->hub->getDb($p);
 		$data = $config->get("kitpvp");
 		$data["deaths"]++;
