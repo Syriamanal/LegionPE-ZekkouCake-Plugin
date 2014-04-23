@@ -5,6 +5,7 @@ namespace pemapmodder\legionpe\geog;
 use pemapmodder\utils\spaces\CuboidSpace as MySpace;
 
 use pocketmine\level\Level as Lv;
+use pocketmine\math\Vector3;
 
 abstract class RawLocs{
 	public static function chooseTeamStd(){
@@ -67,5 +68,7 @@ abstract class RawLocs{
 	public static function pvpSpawn(){
 		return self::pvp()->getSafeSpawn();
 	}
-	// TODO: CTF
+	public static function enterCtfPor(){
+		return new MySpace(new Vector3(134, 30, 101), new Vector3(124, 42, 99), self::hub());
+	}
 }

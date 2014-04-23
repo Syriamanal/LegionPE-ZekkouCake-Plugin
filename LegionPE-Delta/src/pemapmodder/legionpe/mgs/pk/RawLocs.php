@@ -8,7 +8,7 @@ use pocketmine\math\Vector3;
 
 abstract class RawLocs extends ParentClass{
 	public static function fallY(){
-		return parent::pk()->getSafeSpawn()->y - 1;
+		return 71;
 	}
 	public abstract static function signPrefix(Vector3 $pos){
 		foreach(array("x", "y", "z") as $c)

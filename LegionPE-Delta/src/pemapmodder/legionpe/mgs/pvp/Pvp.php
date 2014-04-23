@@ -22,6 +22,7 @@ class Pvp implements Listener{
 		$this->hub = HubPlugin::get();
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
+		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
 	}
 	public function onDeath(Event $event){
@@ -60,6 +61,12 @@ class Pvp implements Listener{
 		$cause = $event->getCause();
 		if(in_array($cause, array("suffocation", "falling")))
 			$event->setCancelled(true);
+	}
+	public function onAttack(Event $event){
+		if(RawLocs::safeArea()->isInside($event->getPlayer())){
+			$event->setCancelled(true);
+			
+		}
 	}
 	public function onKill(Player $killer){
 		$db = $this->hub->getDb($killer);
