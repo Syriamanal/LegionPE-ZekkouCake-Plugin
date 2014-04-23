@@ -24,7 +24,9 @@ class Main implements Listener{
 	 * @priority HIGH
 	*/
 	public function onInteract(Event $evt){}
-	public function join($arenaId){}
+	public function join($arenaId, $player){}
+	public function quit($player){
+	}
 	public static $instance = false;
 	public static function get(){
 		return self::$instance;

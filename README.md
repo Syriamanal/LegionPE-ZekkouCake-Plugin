@@ -31,12 +31,16 @@ LegionPE ZekkouCake Plugins
  * What exactly are they? #_#
 * DIFF pocketmine entities?
 * @_@ not debugging…
+* Spleef
+ * Commands to leave and join
+ * Monitor player sessions using events
+ * Getter functions
+ * Signs
+ * Start/stop loop initialized by Arena::activate(), looped by Arena::start() and Arena::stop(), finalized by unsetting object of Arena::deactivate()
 
 ## Tasks TODO
 * More core commands
  * What exactly are they? #_#
-* Spleef plugin
- * DIFF  pocketmine entities?
 * CTF plugin
  * later... where is the world? Hello @SpyDuck?
 
