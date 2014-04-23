@@ -314,23 +314,23 @@ class HubPlugin extends PluginBase implements Listener{
 				$event->setMessage("");
 				$this->openDb($p);
 				if($this->getDb($p)->get("pw-hash") === false){ // request register (LegionPE registry wizard), if password doesn't exist
-					$this->sessions[$p->getName()] = self::REGISTER;
+					$this->sessions[$p->CID] = self::REGISTER;
 					$p->sendMessage("Welcome to the LegionPE account registry wizard.");
 					$p->sendMessage("Step 1:");
 					$p->sendMessage("Please type your password in chat and send it. Don't worry, other players won't be able to read it.");
 				}
 				elseif($this->getDb($p)->get("ip-auth") === $p->getAddress()){ // authenticate, if ip auth enabled and matches
 					$p->sendMessage("You have been authenticated by your IP address.");
-					$this->sessions[$p->getName()] = self::HUB;
+					$this->sessions[$p->CID] = self::HUB;
 					$this->onAuthPlayer($p);
 				}
 				else{ // request login (normal), if password exists and ip auth not enabled or not matched
 					$p->sendMessage("Please type your password in chat and send it. Don't worry, other players won't be able to read it.");
-					$this->sessions[$p->getName()] = self::LOGIN;
+					$this->sessions[$p->CID] = self::LOGIN;
 				}
 				break;
 			case "PlayerChat": // if session is not self::HUB, monitor it. if session is self::HUB, prevent typing password here
-				if(($s = $this->sessions[$p->getName()]) < self::HUB or $s >= self::LOGIN){ // if not authed
+				if(($s = $this->sessions[$p->CID]) < self::HUB or $s >= self::LOGIN){ // if not authed
 					$event->setCancelled(true);
 				}
 				elseif($this->getDb($p)->get("pw-hash") === $this->hash($event->getMessage())){ // if authed but is telling password
@@ -338,24 +338,24 @@ class HubPlugin extends PluginBase implements Listener{
 					$p->sendMessage("Never talk loudly to others your password!");
 				}
 				if($s === self::REGISTER){ // request repeat password: registry wizard step 1
-					$this->tmpPws[$p->getName()] = $event->getMessage();
+					$this->tmpPws[$p->CID] = $event->getMessage();
 					$p->sendMessage("Step 2:");
 					$p->sendMessage("Please enter your password again to confirm.");
-					$this->sessions[$p->getName()] ++;
+					$this->sessions[$p->CID] ++;
 				}
 				elseif($s === self::REGISTER + 1){ // check repeated password: registry wizard step 2
-					if($this->tmpPws[$p->getName()] === $event->getMessage()){ // choose team, if matches password
+					if($this->tmpPws[$p->CID] === $event->getMessage()){ // choose team, if matches password
 						$p->sendMessage("The password matches! Type this password into your chat and send it next time you login.");
 						$p->sendMessage("LegionPE registry wizard closed!"); // TODO anything else I need to request?
 						$this->getDb($p)->set("pw-hash", $this->hash($event->getMessage()));
-						$this->sessions[$p->getName()]++;
-						unset($this->tmpPws[$p->getName()]);
+						$this->sessions[$p->CID]++;
+						unset($this->tmpPws[$p->CID]);
 						$this->onRegistered($p);
 					}
 					else{ // if password different
 						$p->sendMessage("Password doesn't match! Going back to step 1.");
 						$p->sendMessage("Please type your password in the chat.");
-						$this->sessions[$p->getName()] = self::REGISTER;
+						$this->sessions[$p->CID] = self::REGISTER;
 					}
 				}
 				elseif($s >= self::LOGIN){ // check password, if session is waiting login
@@ -369,7 +369,7 @@ class HubPlugin extends PluginBase implements Listener{
 					}
 					else{ // add session, if password doesn't match
 						$p->sendMessage("Password doesn't match! Please try again.");
-						$this->sessions[$p->getName()] ++;
+						$this->sessions[$p->CID]++;
 						if($s >= self::LOGIN_MAX){ // if reaches maximum trials of login
 							$p->sendMessage("You exceeded the max number of trials to login! You are being kicked.");
 							$this->getServer()->getScheduler()->scheduleDelayedTask(
@@ -387,7 +387,7 @@ class HubPlugin extends PluginBase implements Listener{
 				}
 			case "PlayerCommandPreprocess":
 			case "PlayerInteract":
-				if($this->sessions[$p->getName()] !== self::HUB){ // disallow logging in
+				if($this->sessions[$p->CID] !== self::HUB){ // disallow logging in
 					$event->setCancelled(true);
 					$p->sendMessage("Please login/register first!");
 				}
@@ -423,11 +423,11 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	public function onRegistered(Player $p){ // set session to self::HUB and choose team, on registry success
 		$p->teleport(Loc::chooseTeamStd());
-		$this->sessions[$p->getName()] = self::HUB;
+		$this->sessions[$p->CID] = self::HUB;
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
 	public function onAuthPlayer(Player $p){ // set session to self::HUB, tp to spawn, ensure tp, call PlayerAuthEvent
-		$this->sessions[$p->getName()] = self::HUB;
+		$this->sessions[$p->CID] = self::HUB;
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Loc::spawn();
 		$p->teleport($s);

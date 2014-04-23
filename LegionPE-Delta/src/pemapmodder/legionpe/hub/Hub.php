@@ -84,7 +84,7 @@ class Hub implements Listener{
 			$p->sendMessage("You are teleported to the");
 			$p->sendMessage("  parkour world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
-			$this->hub->sessions[$p->getName()] = HubPlugin::PK;
+			$this->hub->sessions[$p->CID] = HubPlugin::PK;
 		}
 	}
 	public static $inst = false;
