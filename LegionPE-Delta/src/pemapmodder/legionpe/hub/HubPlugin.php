@@ -25,11 +25,17 @@ use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class HubPlugin extends PluginBase implements Listener{
-	const REGISTER	= 0b10;
-	const ONLINE	= 0b111;
-	const LOGIN		= 0b1000;
-	const LOGIN_MAX	= 0b1111;
-	protected $sessions = array();
+	const REGISTER	= 0b00010;
+	const HUB		= 0b01000;
+	const PVP		= 0b01001; // KitPvP
+	const PK		= 0b01010; // Parkour
+	const SPLEEF	= 0b01101; // Touch-Spleef
+	const CTF		= 0b01110; // Capture The Flag
+	// const BG		= 0b01111; // build and guess
+	const ON		= 0b10111;
+	const LOGIN		= 0b11000;
+	const LOGIN_MAX	= 0b11111;
+	public $sessions = array();
 	protected $tmpPws = array();
 	public $dbs = array();
 	public $config;
@@ -315,7 +321,7 @@ class HubPlugin extends PluginBase implements Listener{
 				}
 				elseif($this->getDb($p)->get("ip-auth") === $p->getAddress()){ // authenticate, if ip auth enabled and matches
 					$p->sendMessage("You have been authenticated by your IP address.");
-					$this->sessions[$p->getName()] = self::ONLINE;
+					$this->sessions[$p->getName()] = self::HUB;
 					$this->onAuthPlayer($p);
 				}
 				else{ // request login (normal), if password exists and ip auth not enabled or not matched
@@ -323,8 +329,8 @@ class HubPlugin extends PluginBase implements Listener{
 					$this->sessions[$p->getName()] = self::LOGIN;
 				}
 				break;
-			case "PlayerChat": // if session is not self::ONLINE, monitor it. if session is self::ONLINE, prevent typing password here
-				if(($s = $this->sessions[$p->getName()]) !== 0b100){ // if not authed
+			case "PlayerChat": // if session is not self::HUB, monitor it. if session is self::HUB, prevent typing password here
+				if(($s = $this->sessions[$p->getName()]) < self::HUB or $s >= self::LOGIN){ // if not authed
 					$event->setCancelled(true);
 				}
 				elseif($this->getDb($p)->get("pw-hash") === $this->hash($event->getMessage())){ // if authed but is telling password
@@ -352,7 +358,7 @@ class HubPlugin extends PluginBase implements Listener{
 						$this->sessions[$p->getName()] = self::REGISTER;
 					}
 				}
-				elseif($s === self::LOGIN){ // check password, if session is waiting login
+				elseif($s >= self::LOGIN){ // check password, if session is waiting login
 					$hash = $this->getDb($p)->get("pw-hash");
 					if($this->hash($event->getMessage()) === $hash){ // auth, if password matches
 						if($this->getDb($p)->get("ip-auth") !== false){ // update IP
@@ -381,7 +387,7 @@ class HubPlugin extends PluginBase implements Listener{
 				}
 			case "PlayerCommandPreprocess":
 			case "PlayerInteract":
-				if($this->sessions[$p->getName()] !== self::ONLINE){ // disallow logging in
+				if($this->sessions[$p->getName()] !== self::HUB){ // disallow logging in
 					$event->setCancelled(true);
 					$p->sendMessage("Please login/register first!");
 				}
@@ -415,13 +421,13 @@ class HubPlugin extends PluginBase implements Listener{
 				break;
 		}
 	}
-	public function onRegistered(Player $p){ // set session to self::ONLINE and choose team, on registry success
+	public function onRegistered(Player $p){ // set session to self::HUB and choose team, on registry success
 		$p->teleport(Loc::chooseTeamStd());
-		$this->sessions[$p->getName()] = self::ONLINE;
+		$this->sessions[$p->getName()] = self::HUB;
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
-	public function onAuthPlayer(Player $p){ // set session to self::ONLINE, tp to spawn, ensure tp, call PlayerAuthEvent
-		$this->sessions[$p->getName()] = self::ONLINE;
+	public function onAuthPlayer(Player $p){ // set session to self::HUB, tp to spawn, ensure tp, call PlayerAuthEvent
+		$this->sessions[$p->getName()] = self::HUB;
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Loc::spawn();
 		$p->teleport($s);

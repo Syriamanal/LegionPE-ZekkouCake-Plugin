@@ -2,10 +2,13 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pemapmodder\utils\CallbackEventExe;
+
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\block\Block;
 use pocketmine\event\Event;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 
 class Main implements Listener{
@@ -21,30 +24,24 @@ class Main implements Listener{
 		}
 		*/
 		$this->server = Server::getInstance();
-		$this->server->getPluginManager()->registerEvents($this, $this);
+		$pm = $this->server->getPluginManager();
+		foreach(array(
+				array("entity\\EntityMoveEvent", "onMove"),
+				array("player\\PlayerInteractEvent", "onInteract"),
+				array("player\\PlayerJoinEvent", "onJoin")
+				array("player\\PlayerQuitEvent", "onQuit")) as $ev)
+			$pm->registerEvent("pocketmine\\event\\".$ev[0], $this, EventPriority::HIGH, new CallbackEventExe(array($this, $ev[1])), HubPlugin::get());
 	}
-	/**
-	 * @param EntityMoveEvent $evt
-	 * @priority HIGH
-	 */
 	public function onMove(Event $evt){
 		if($evt->getEntity() instanceof Player){
 			if(($sid = $this->sessions[$evt->getEntity()->CID]) !== -1)
 				$this->arenas[$sid]->onMove($evt);
 		}
 	}
-	/**
-	 * @param PlayerInteractEvent $evt
-	 * @priority HIGH
-	*/
 	public function onInteract(Event $evt){
 		if(($sid = $this->sessions[$evt->getPlayer()->CID]) !== -1)
 			$this->arenas[$sid]->onInteract($evt);
 	}
-	/**
-	 * @param PlayerQuitEvent $event
-	 * @priority HIGH
-	 */
 	public function onQuit(Event $event){
 		$p = $event->getPlayer();
 		if(!isset($this->sessions[$p->CID])) return;
@@ -53,10 +50,6 @@ class Main implements Listener{
 		}
 		unset($this->sessions[$p->CID]);
 	}
-	/**
-	 * @param PlayerJoinEvent $event
-	 * @priority HIGH
-	 */
 	public function onJoin(Event $event){
 		$this->sessions[$event->getPlayer()->CID] = -1;
 	}

@@ -76,6 +76,7 @@ class Hub implements Listener{
 			$p->sendMessage("You are teleported to the");
 			$p->sendMessage("  PvP world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
+			$this->hub->sessions[$p->getName()] = HubPlugin::PVP;
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pkSpawn()), 40);
@@ -83,10 +84,14 @@ class Hub implements Listener{
 			$p->sendMessage("You are teleported to the");
 			$p->sendMessage("  parkour world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
+			$this->hub->sessions[$p->getName()] = HubPlugin::PK;
 		}
 	}
-	public static $hub = false;
+	public static $inst = false;
 	public static function init(){
-		self::$hub=new self();
+		self::$inst=new self();
+	}
+	public static function get(){
+		return self::$inst;
 	}
 }

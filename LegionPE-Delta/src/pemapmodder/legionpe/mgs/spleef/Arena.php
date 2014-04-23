@@ -36,7 +36,7 @@ class Arena{
 		$this->players[$join->CID] = $join;
 		$join->teleport($this->preps[count($this->players) - 1]->add(0.5, 0.5, 0.5));
 	}
-	public function quit(Playet $player, $reason = "logout"){
+	public function quit(Playet $player, $reason = "command"){
 		$this->main->quit($player);
 		$db = $this->hub->getDb($player);
 		$s = $db->get("spleef");
