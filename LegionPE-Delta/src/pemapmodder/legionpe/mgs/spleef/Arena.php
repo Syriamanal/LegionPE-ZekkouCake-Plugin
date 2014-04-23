@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\mgs\spleef;
 
 use pemapmodder\legionpe\hub\HubPlugin;
+use pemapmodder\legionpe\hub\Team;
 
 use pocketmine\Player;
 use pocketmine\block\Block;
@@ -42,8 +43,8 @@ class Arena{
 		$unwons = $s["unwons"];
 		$db->set("spleef", $s);
 		$db->save();
-		
-		$player->sendMessage("You now have $unwons unwon spleef tournament".($s > 1 ? "s":"")."!");
+		Team::get($this->hub->getDb($player)->get("team"))["points"]--;
+		$player->sendMessage("You now have $unwons unwon spleef tournament".($s > 1 ? "s":"")."! Team score -1!");
 		unset($this->players[$player->getCID()]);
 		foreach($this->players as $p)
 			$p->sendMessage("{$player->getDisplayName()} left the spleef tournament due to $reason.");
@@ -55,7 +56,8 @@ class Arena{
 			$w["wins"]++;
 			$db->set("spleef", $w);
 			$db->save();
-			$winner->sendMessage("You have won {$w["wins"]} spleef tournament".($w["wins"] > 1 ? "s":"")."!");
+			$winner->sendMessage("You have won {$w["wins"]} spleef tournament".($w["wins"] > 1 ? "s":"")."! Team score +".($add = count($this->preps))."!");
+			Team::get($this->hub->getDb($p)->get("team"))["points"] += $add;
 			$this->main->quit($winner);
 			$this->stop();
 		}
