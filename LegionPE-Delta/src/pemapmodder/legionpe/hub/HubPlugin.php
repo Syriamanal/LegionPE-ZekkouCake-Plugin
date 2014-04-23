@@ -461,7 +461,7 @@ class HubPlugin extends PluginBase implements Listener{
 						ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
 			"kitpvp"=>array("kills"=>0, "deaths"=>0),
 			"parkour"=>array(),
-			"spleef"=>array(),
+			"spleef"=>array("wins"=>0, "unwonws"=>0),
 			"ctf"=>array(),
 			"team" => false,
 			"mute" => false
