@@ -457,8 +457,7 @@ class HubPlugin extends PluginBase implements Listener{
 				"kitpvp-kills"=>"",
 				"parkour"=>"",
 				"kitpvp-rank"=>"",
-				"rank"=>($rank = $this->getRank($p)) === "player" ? "":
-						ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
+				"rank"=>"",
 			"kitpvp"=>array("kills"=>0, "deaths"=>0),
 			"parkour"=>array(),
 			"spleef"=>array("wins"=>0, "unwonws"=>0),
@@ -466,6 +465,12 @@ class HubPlugin extends PluginBase implements Listener{
 			"team" => false,
 			"mute" => false
 		));
+		$r = ($rank = $this->getRank($p)) === "player" ? "":
+				ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
+		$pfxs = $config->get("prefixes");
+		$pfxs["rank"] = $r;
+		$config->set("prefixes", $pfxs);
+		$config->save();
 		$path = $this->getServer()->getDataPath()."SKC-Rewrite/player-databases/".strtolower($p->getName(){0})."/{$p->getName()}.txt";
 		if(($yaml = @\file_get_contents($path)) !== false){
 			$data = \yaml_parse($yaml);

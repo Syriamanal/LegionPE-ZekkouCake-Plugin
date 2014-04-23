@@ -24,6 +24,7 @@ class Hub implements Listener{
 	}
 	public function onChat(Event $evt){
 		$pfxs = HubPlugin::get()->getDb($p = $evt->getPlayer())->get("prefixes");
+		$pfxs["team"] = HubPlugin::get()->getDb($p)->get("team");
 		$rec = array();
 		foreach($evt->getRecipients() as $r){
 			if($r->level->getName() === $p->level->getName())
@@ -32,8 +33,9 @@ class Hub implements Listener{
 		$evt->setRecipients($rec);
 		$prefix = "";
 		foreach(HubPlugin::getPrefixOrder() as $pfxType=>$filter){
-			if(!$this->isFiltered($filter, $p->level->getName()) and \strlen(\str_replace(" ", "", $pfxs[$pfxType])) > 0)
-				$prefix .= ($pfxs[$pfxType]."|");
+			$pf = $pfxs[$pfxType];
+			if(!$this->isFiltered($filter, $p->level->getName()) and \strlen(\str_replace(" ", "", "$pf")) > 0)
+				$prefix .= "$pf|";
 		}
 		$format = $prefix."%s: %s";
 		$evt->setFormat($format);
