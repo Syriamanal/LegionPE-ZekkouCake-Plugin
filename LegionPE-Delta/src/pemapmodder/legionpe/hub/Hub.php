@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\hub;
 
 use pemapmodder\legionpe\geog\RawLocs as RL;
+use pemapmodder\legionpe\hub\Team;
 use pemapmodder\utils\CallbackEventExe;
 use pemapmodder\utils\CallbackPluginTask;
 

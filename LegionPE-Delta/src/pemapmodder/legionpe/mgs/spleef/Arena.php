@@ -42,6 +42,7 @@ class Arena{
 		$unwons = $s["unwons"];
 		$db->set("spleef", $s);
 		$db->save();
+		
 		$player->sendMessage("You now have $unwons unwon spleef tournament".($s > 1 ? "s":"")."!");
 		unset($this->players[$player->getCID()]);
 		foreach($this->players as $p)
