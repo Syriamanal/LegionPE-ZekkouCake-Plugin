@@ -29,7 +29,7 @@ class Main implements Listener{
 	 */
 	public function onMove(Event $evt){
 		if($evt->getEntity() instanceof Player){
-			if(($sid = $this->sessions[$evt->getEntity()->getCID()]) !== -1)
+			if(($sid = $this->sessions[$evt->getEntity()->CID]) !== -1)
 				$this->arenas[$sid]->onMove($evt);
 		}
 	}
@@ -38,7 +38,7 @@ class Main implements Listener{
 	 * @priority HIGH
 	*/
 	public function onInteract(Event $evt){
-		if(($sid = $this->sessions[$evt->getPlayer()->getCID()]) !== -1)
+		if(($sid = $this->sessions[$evt->getPlayer()->CID]) !== -1)
 			$this->arenas[$sid]->onInteract($evt);
 	}
 	/**
@@ -47,24 +47,24 @@ class Main implements Listener{
 	 */
 	public function onQuit(Event $event){
 		$p = $event->getPlayer();
-		if(!isset($this->sessions[$p->getCID()])) return;
-		if(($s = $this->sessions[$p->getCID()]) !== -1){
+		if(!isset($this->sessions[$p->CID])) return;
+		if(($s = $this->sessions[$p->CID]) !== -1){
 			$this->arenas[$sid]->quit($event->getPlayer(), "logout");
 		}
-		unset($this->sessions[$p->getCID()]);
+		unset($this->sessions[$p->CID]);
 	}
 	/**
-	 * @param PlayerjoinEvent $event
+	 * @param PlayerJoinEvent $event
 	 * @priority HIGH
 	 */
 	public function onJoin(Event $event){
-		$this->sessions[$event->getPlayer()->getCID()] = -1;
+		$this->sessions[$event->getPlayer()->CID] = -1;
 	}
 	public function join($sid, Player $player){
-		$this->sessions[$player->getCID()] = $sid;
+		$this->sessions[$player->CID] = $sid;
 	}
 	public function quit(Player $player){
-		$this->sessions[$player->getCID()] = -1;
+		$this->sessions[$player->CID] = -1;
 	}
 	public static $instance = false;
 	public static function get(){

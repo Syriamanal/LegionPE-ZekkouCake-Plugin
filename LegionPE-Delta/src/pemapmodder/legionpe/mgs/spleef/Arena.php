@@ -33,7 +33,7 @@ class Arena{
 	public function join(Player $join){
 		if($this->status === 1 or count($this->players) >= count($this->preps) or isset($this->players[$join->getCID(}]))
 			return false;
-		$this->players[$join->getCID()] = $join;
+		$this->players[$join->CID] = $join;
 		$join->teleport($this->preps[count($this->players) - 1]->add(0.5, 0.5, 0.5));
 	}
 	public function quit(Playet $player, $reason = "logout"){
@@ -45,7 +45,7 @@ class Arena{
 		$db->save();
 		Team::get($this->hub->getDb($player)->get("team"))["points"]--;
 		$player->sendMessage("You now have $unwons unwon spleef tournament".($s > 1 ? "s":"")."! Team score -1!");
-		unset($this->players[$player->getCID()]);
+		unset($this->players[$player->CID]);
 		foreach($this->players as $p)
 			$p->sendMessage("{$player->getDisplayName()} left the spleef tournament due to $reason.");
 		if($this->status === 1 and count($this->players) === 1){
