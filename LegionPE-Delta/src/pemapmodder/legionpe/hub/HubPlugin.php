@@ -32,12 +32,12 @@ class HubPlugin extends PluginBase implements Listener{
 	public $dbs = array();
 	public $config;
 	public function onLoad(){
-		console(TextFormat::GREEN."Hub has been loaded!");
 		self::$instance = $this;
 		$this->path = $this->getServer()->getDataPath()."Hub/";
 		@mkdir($this->path);
 		$this->playerPath = $this->path."players/";
 		@mkdir($this->playerPath);
+		console(TextFormat::GREEN."Hub has been loaded, directories created!");
 	}
 	public function onEnable(){
 		console(TextFormat::AQUA."Initializing Hub... ", false);
