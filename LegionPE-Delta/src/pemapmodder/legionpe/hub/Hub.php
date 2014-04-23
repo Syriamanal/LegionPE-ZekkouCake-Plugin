@@ -24,7 +24,7 @@ class Hub implements Listener{
 	}
 	public function onChat(Event $evt){
 		$pfxs = HubPlugin::get()->getDb($p = $evt->getPlayer())->get("prefixes");
-		$pfxs["team"] = HubPlugin::get()->getDb($p)->get("team");
+		$pfxs["team"] = Team::get(HubPlugin::get()->getDb($p)->get("team"))["name"];
 		$rec = array();
 		foreach($evt->getRecipients() as $r){
 			if($r->level->getName() === $p->level->getName())
