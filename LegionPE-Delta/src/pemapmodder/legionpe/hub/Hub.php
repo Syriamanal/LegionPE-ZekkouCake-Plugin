@@ -44,19 +44,19 @@ class Hub implements Listener{
 	}
 	private function isFiltered($filter, $dirt){
 		switch($filter){
-		case "all":
-			return false;
-		case "pvp":
-			return !in_array($dirt, array("world_pvp"));
-		case "pk":
-			return !in_array($dirt, array("world_parkour"));
-		case "ctf":
-			return !in_array($dirt, array("world_tmp_ctf", "world_base_ctf"));
-		case "spleef":
-			return stripos($dirt, "spleef") === false;
-		default: // invalid filter?
-			console("[WARNING] Invalid filter: \"$filter\"");
-			return false;
+			case "all":
+				return false;
+			case "pvp":
+				return !in_array($dirt, array("world_pvp"));
+			case "pk":
+				return !in_array($dirt, array("world_parkour"));
+			case "ctf":
+				return !in_array($dirt, array("world_tmp_ctf", "world_base_ctf"));
+			case "spleef":
+				return stripos($dirt, "spleef") === false;
+			default: // invalid filter?
+				console("[WARNING] Invalid filter: \"$filter\"");
+				return false;
 		}
 	}
 	public function onInteractLP(Event $evt){

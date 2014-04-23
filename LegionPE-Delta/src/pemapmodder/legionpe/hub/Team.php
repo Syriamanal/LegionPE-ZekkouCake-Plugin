@@ -52,7 +52,7 @@ class Team implements \ArrayAccess{
 			$percent = max(0, $scores[$i]) / $max * 100;
 			RL::teamScoreBar($i, $percent)->setBlocks(Block::get(35, self::$teams[$i]["color-meta"]));
 		}
-		\console("[INFO] Hub score bars have been updated.");
+		console("[INFO] Hub score bars have been updated.");
 	}
 	// non-static
 	public $config = array();
