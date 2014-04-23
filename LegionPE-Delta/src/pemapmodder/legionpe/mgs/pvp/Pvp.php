@@ -3,6 +3,8 @@
 namespace pemapmodder\legionpe\mgs\pvp;
 
 use pemapmodder\legionpe\hub\HubPlugin;
+use pemampodder\legionpe\hub\Team;
+
 use pemapmodder\utils\CallbackEventExe as EvtExe;
 use pemapmodder\utils\CallbackPluginTask as Task;
 
@@ -24,14 +26,17 @@ class Pvp implements Listener{
 	}
 	public function onDeath(Event $event){
 		$p = $event->getEntity();
-		if(!($p instanceof Player)) return;
+		if(!($p instanceof Player) or $p->level->getName() !== "world_pvp") return;
 		$cause = $event->getCause();
 		if($cause instanceof Player){
 			$this->onKill($cause);
 			$cause->sendMessage("You killed {$p->getDisplayName()}!");
+			$cause->sendMessage("Team points +2!");
+			Team::get($this->hub->getDb($cause))["points"] += 2;
 			$this->pvpDies[$p->getName()] = true;
 			$p->sendMessage("You have been killed by {$cause->getDisplayName()}!");
 		}
+		$p->
 		$config = $this->hub->getDb($p);
 		$data = $config->get("kitpvp");
 		$data["deaths"]++;
