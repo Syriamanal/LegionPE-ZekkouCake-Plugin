@@ -2,6 +2,7 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\block\Block;
 use pocketmine\event\Event;
@@ -26,14 +27,44 @@ class Main implements Listener{
 	 * @param EntityMoveEvent $evt
 	 * @priority HIGH
 	 */
-	public function onMove(Event $evt){}
+	public function onMove(Event $evt){
+		if($evt->getEntity() instanceof Player){
+			if(($sid = $this->sessions[$evt->getEntity()->getCID()]) !== -1)
+				$this->arenas[$sid]->onMove($evt);
+		}
+	}
 	/**
 	 * @param PlayerInteractEvent $evt
 	 * @priority HIGH
 	*/
-	public function onInteract(Event $evt){}
-	public function join($arenaId, $player){}
-	public function quit($player){
+	public function onInteract(Event $evt){
+		if(($sid = $this->sessions[$evt->getPlayer()->getCID()]) !== -1)
+			$this->arenas[$sid]->onInteract($evt);
+	}
+	/**
+	 * @param PlayerQuitEvent $event
+	 * @priority HIGH
+	 */
+	public function onQuit(Event $event){
+		$p = $event->getPlayer();
+		if(!isset($this->sessions[$p->getCID()])) return;
+		if(($s = $this->sessions[$p->getCID()]) !== -1){
+			$this->arenas[$sid]->quit($event->getPlayer(), "logout");
+		}
+		unset($this->sessions[$p->getCID()]);
+	}
+	/**
+	 * @param PlayerjoinEvent $event
+	 * @priority HIGH
+	 */
+	public function onJoin(Event $event){
+		$this->sessions[$event->getPlayer()->getCID()] = -1;
+	}
+	public function join($sid, Player $player){
+		$this->sessions[$player->getCID()] = $sid;
+	}
+	public function quit(Player $player){
+		$this->sessions[$player->getCID()] = -1;
 	}
 	public static $instance = false;
 	public static function get(){

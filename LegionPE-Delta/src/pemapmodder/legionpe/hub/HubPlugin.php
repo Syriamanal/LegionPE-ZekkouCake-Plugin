@@ -6,6 +6,8 @@ use pemapmodder\legionpe\geog\RawLocs as Loc;
 use pemapmodder\legionpe\geog\Position as MyPos;
 use pemapmodder\legionpe\mgs\pvp\Pvp;
 use pemapmodder\legionpe\mgs\pk\Parkour as Pk;
+use pemapmodder\legionpe\mgs\spleef\Main as Spleef;
+use pemapmodder\legionpe\mgs\ctf\Main as CTF;
 
 use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
@@ -196,6 +198,8 @@ class HubPlugin extends PluginBase implements Listener{
 		Hub::init();
 		Pvp::init();
 		Pk::init();
+		Spleef::init();
+		CTF::init();
 	}
 	protected function registerHandles(){ // register events
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin", "PlayerQuit") as $e)

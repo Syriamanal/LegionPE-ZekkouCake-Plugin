@@ -72,14 +72,16 @@ class Hub implements Listener{
 			return;
 		if(RL::enterPvpPor()->isInside($p)){
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pvpSpawn()), 40);
-			$p->sendMessage("You are going to be teleported to the");
-			$p->sendMessage("  PvP world in 2 seconds! You might lag!");
+			$p->teleport(RL::pvpSpawn());
+			$p->sendMessage("You are teleported to the");
+			$p->sendMessage("  PvP world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pkSpawn()), 40);
-			$p->sendMessage("You are going to be teleported to the");
-			$p->sendMessage("  parkour world in 2 seconds! You might lag!");
+			$p->teleport(RL::pkSpawn());
+			$p->sendMessage("You are teleported to the");
+			$p->sendMessage("  parkour world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 		}
 	}
