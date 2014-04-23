@@ -76,7 +76,7 @@ class Hub implements Listener{
 			$p->sendMessage("You are teleported to the");
 			$p->sendMessage("  PvP world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
-			$this->hub->sessions[$p->getName()] = HubPlugin::PVP;
+			$this->hub->sessions[$p->CID] = HubPlugin::PVP;
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pkSpawn()), 40);

@@ -34,7 +34,7 @@ class Pvp implements Listener{
 			$cause->sendMessage("You killed {$p->getDisplayName()}!");
 			$cause->sendMessage("Team points +2!");
 			Team::get($this->hub->getDb($cause)->get("team"))["points"] += 2;
-			$this->pvpDies[$p->getName()] = true;
+			$this->pvpDies[$p->CID] = true;
 			$p->sendMessage("You have been killed by {$cause->getDisplayName()}!");
 		}
 		Team::get($this->hub->getDb($p)->get("team"))["points"]--;
@@ -48,12 +48,12 @@ class Pvp implements Listener{
 	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
-		if(@$this->pvpDies[$p->getName()] !== true)
+		if(@$this->pvpDies[$p->CID] !== true)
 			return;
 		$p->teleport(RawLocs::pvpSpawn());
 		$this->equip($p);
-		$this->pvpDies[$p->getName()] = false;
-		unset($this->pvpDies[$p->getName()]);
+		$this->pvpDies[$p->CID] = false;
+		unset($this->pvpDies[$p->CID]);
 	}
 	public function onHurt(Event $event){
 		$p = $event->getEntity();
