@@ -69,10 +69,11 @@ class HubPlugin extends PluginBase implements Listener{
 						"knight"=>875,
 						"addict"=>1100,
 						"unstoppable"=>1350,
-						"professional"=>1625,
+						"pro"=>1625,
 						"hardcore"=>1925,
 						"master"=>2250,
-						"legendary"=>2600,
+						"legend"=>2600,
+						"god"=>2975,
 					),
 					"auto-equip"=>array(
 						"player"=>array(

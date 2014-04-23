@@ -35,7 +35,7 @@ class Hub implements Listener{
 		$evt->setRecipients($rec);
 		$prefix = "";
 		foreach(HubPlugin::getPrefixOrder() as $pfxType=>$filter){
-			$pf = $pfxs[$pfxType];
+			$pf = ucfirst($pfxs[$pfxType]);
 			if(!$this->isFiltered($filter, $p->level->getName()) and \strlen(\str_replace(" ", "", "$pf")) > 0)
 				$prefix .= "$pf|";
 		}
