@@ -178,7 +178,18 @@ class HubPlugin extends PluginBase implements Listener{
 						"Ivan Jones"=>0,
 					),
 				),
-				
+				"spleef"=>array(
+					"chances"=>array(
+						"player"=>45,
+						"donater"=>50,
+						"vip"=>55,
+						"vip-plus"=>60,
+						"vip-plus-plus"=>65,
+						"premium"=>70,
+						"sponsor"=>75,
+						"staff"=>55,
+					),
+				),
 			));
 		}
 		Team::init();
