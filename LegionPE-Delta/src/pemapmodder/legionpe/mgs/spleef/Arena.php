@@ -6,6 +6,7 @@ use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\legionpe\hub\Team;
 
 use pocketmine\Player;
+use pocketmine\Server;
 use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -16,6 +17,7 @@ class Arena{
 	public function __construct($id, Position $topCentre, $radius, $height, $floors, $players,
 			Block $floor, Block $pfloor, Block $pwall, Block $pceil){
 		$this->hub = HubPlugin::get();
+		$this->server = Server::getInstance();
 		$this->id = $id;
 		$this->centre = $topCentre;
 		$this->radius = $radius;
@@ -31,10 +33,14 @@ class Arena{
 		$this->preps = Builder::build($this->centre, $this->radius, $this->gfloor, $this->floors, $this->height, $cnt, $this->pfloor, $this->pwall, $this->pceil);
 	}
 	public function join(Player $join){
-		if($this->status === 1 or count($this->players) >= count($this->preps) or isset($this->players[$join->getCID(}]))
+		if(!$this->canJoin($join))
 			return false;
 		$this->players[$join->CID] = $join;
 		$join->teleport($this->preps[count($this->players) - 1]->add(0.5, 0.5, 0.5));
+		return true;
+	}
+	public function canJoin(Player $join){
+		return !($this->status === 1 or count($this->players) >= count($this->preps) or isset($this->players[$join->CID]));
 	}
 	public function quit(Playet $player, $reason = "command"){
 		$this->main->quit($player);
@@ -61,6 +67,15 @@ class Arena{
 			$this->main->quit($winner);
 			$this->stop();
 		}
+	}
+	public function prestart(){
+		$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($this, "start"), $this->hub), 200);
+	}
+	public function start(){
+		$this->build(count($this->preps));
+	}
+	public function end($reason = ""){
+		
 	}
 	public function onInteract($event){
 		$event->setCancelled(true);

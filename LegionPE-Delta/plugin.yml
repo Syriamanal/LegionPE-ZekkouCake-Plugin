@@ -7,4 +7,10 @@ prefix: LegionPE
 website: https://github.com/mcpesrccode/LegionPE-ZekkouCake-Plugin
 api: [1.0.0]
 version: Delta 3.0
-permissions: []
+permissions:
+  legionpe.cmd.players:
+    description: "Allow a player use the /show command."
+    default: true
+    children:
+      legionpe.cmd.players.show:
+        

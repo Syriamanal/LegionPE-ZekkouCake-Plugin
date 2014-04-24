@@ -218,6 +218,10 @@ class HubPlugin extends PluginBase implements Listener{
 				EventPriority::HIGHEST, new CallbackEventExe(array($this, "evt")), $this, false);
 	}
 	public function initCmds(){ // register commands
+		$cmd = new PluginCommand("quit", $this);
+		$cmd->setUsage("/quit");
+		$cmd->setDescription("Quit the current minigame, if possible");
+		$cmd->register($this->getServer()->getCommandMap());
 		$cmd = new PluginCommand("show", $this);
 		$cmd->setUsage("/show <invisible player|all>");
 		$cmd->setDescription("Attempt to show an invisible player");
