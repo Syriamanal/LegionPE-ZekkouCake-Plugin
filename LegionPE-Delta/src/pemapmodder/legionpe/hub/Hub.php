@@ -13,36 +13,58 @@ use pocketmine\Server;
 use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerChatEvent;
 
 class Hub implements Listener{
 	public $server;
 	public $teleports = array();
+	protected $channels = array();
+	public $defaultChannels = array(
+		"legionpe.chat.general",
+		"legionpe.chat.mute.<CID>",
+		"legionpe.chat.team.<TID>",
+		"legionpe.chat.pvp.public",
+		"legionpe.chat.pvp.<TID>",
+		"legionpe.chat.pvp.public",
+		"legionpe.chat.pk.<TID>",
+		"legionpe.chat.ctf.public",
+		"legionpe.chat.ctf.<TID>",
+		"legionpe.chat.spleef.public",
+		"legionpe.chat.spleef.<TID>",
+		"legionpe.chat.spleef.<SID>.<TID>",
+		"legionpe.chat.spleef.<SID>");
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$pmgr = $this->server->getPluginManager();
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::LOW, new CallbackEventExe(array($this, "onInteractLP")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\entity\\EntityMoveEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onMove")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerChatEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onChat")), HubPlugin::get());
+		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerCommandPreprocessEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onPreCmd")), HubPlugin::get());
 	}
 	public function onChat(Event $evt){
 		$pfxs = HubPlugin::get()->getDb($p = $evt->getPlayer())->get("prefixes");
 		$pfxs["team"] = Team::get(HubPlugin::get()->getDb($p)->get("team"))["name"];
 		$rec = array();
 		foreach($evt->getRecipients() as $r){
-			if($r->level->getName() === $p->level->getName())
+			if($this->getChannel($r) === $this->getChannel($p) or $this->getChannel($p) === "legionpe.chat.mandatory")
 				$rec[] = $r;
 		}
 		$evt->setRecipients($rec);
-		$prefix = "";
-		foreach(HubPlugin::getPrefixOrder() as $pfxType=>$filter){
-			$pf = ucfirst($pfxs[$pfxType]);
-			if(!$this->isFiltered($filter, $p->level->getName()) and \strlen(\str_replace(" ", "", "$pf")) > 0)
-				$prefix .= "$pf|";
-		}
-		$format = $prefix."%s: %s";
+		$format = $this->getPrefixes($p)."%s: %s";
 		$evt->setFormat($format);
 	}
-	private function isFiltered($filter, $dirt){
+	protected function getPrefixes(Player $player){
+		$prefix = "";
+		foreach(HubPlugin::getPrefixOrder() as $pfxType=>$filter){
+			if($pfxType === "team")
+				$pf = "".ucfirst(Team::get(HubPlugin::get()->getDb($player)->get("team"))["name"])."";
+			else $pf = ucfirst(HubPlugin::get()->getDb($player)->get("prefixes")[$pfxType]);
+			if(!$this->isFiltered($filter, $p->level->getName()) and strlen(\str_replace(" ", "", $pf)) > 0)
+				$prefix .= "$pf|";
+		}
+		return $prefix;
+	}
+	protected function isFiltered($filter, $dirt){
 		switch($filter){
 			case "all":
 				return false;
@@ -77,6 +99,7 @@ class Hub implements Listener{
 			$p->sendMessage("  PvP world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 			$this->hub->sessions[$p->CID] = HubPlugin::PVP;
+			$this->channels[$p->CID] = "legionpe.chat.pvp.public";
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pkSpawn()), 40);
@@ -85,6 +108,26 @@ class Hub implements Listener{
 			$p->sendMessage("  parkour world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 			$this->hub->sessions[$p->CID] = HubPlugin::PK;
+			$this->channels[$p->CID] = "legionpe.chat.pk.public";
+		}
+	}
+	public function setChannel(Player $player, $channel = "legionpe.chat.general"){
+		$this->channels[$player->CID] = $channel;
+	}
+	public function getChannel(Player $player){
+		return $this->channels[$player->CID];
+	}
+	public function onPreCmd(Event $event){
+		$p = $event->getPlayer();
+		$cmd = explode(" ", $event->getMessage());
+		$command = substr(array_shift($cmd), 1);
+		switch($command){
+			case "me":
+				$event->setCancelled(true);
+				foreach(Player::getAll() as $player){
+					if($this->getChannel($player) === $this->getChannel($p) or $this->getChannel($p) === "legionpe.chat.mandatory")
+						$player->sendMessage("* {$this->getPrefixes($player)}{$player->getDisplayName()} ".implode(" ", $cmd));
+				}
 		}
 	}
 	public static $inst = false;

@@ -14,16 +14,36 @@ use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\item\Item;
+use pocketmine\permisison\DefaultPermissions as DP;
+use pocketmine\permission\Permission as Perm;
 
 class Pvp implements Listener{
 	public $pvpDies = array();
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$this->hub = HubPlugin::get();
+		// permissions
+		// cmd perms
+		$mgs = $this->server->getPluginManager()->getPermission("legionpe.cmd.mg");
+		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using PvP minigame commands"), $mgs);
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame", Perm::DEFAULT_FALSE), $mg); // DEFAULT_FALSE because minigame-only
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame", Perm::DEFAULT_FALSE), $mg);
+		// actions perms
+		$mgs = $this->server->getPluginManager()->getPermission("legionpe.mg");
+		$mg = DP::registerPermission(new Perm("legionpe.mg.pvp", "Allow doing some actions in PvP minigame"), $mgs);
+		DP::registerPermission(new Perm("legionpe.mg.pvp.spawnattack", "Allow attacking at spawn platform", Perm::DEFAULT_OP), $mg);
+		// event handlers
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
+		// commands
+		$cmd = new Cmd("pvp", $this);
+		$cmd->setDescription("Get the PvP kit!");
+		// $cmd->setUsage("");
+		$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
+		$cmd->setAliases(array("kit"));
+		$cmd->register($this->server->getCommandMap());
 	}
 	public function onDeath(Event $event){
 		$p = $event->getEntity();
@@ -65,7 +85,7 @@ class Pvp implements Listener{
 	public function onAttack(Event $event){
 		if(RawLocs::safeArea()->isInside($event->getPlayer())){
 			$event->setCancelled(true);
-			
+			$event->getPlayer()->sendMessage("You may not attack people here!");
 		}
 	}
 	public function onKill(Player $killer){

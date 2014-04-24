@@ -20,13 +20,15 @@ use pocketmine\command\RemoteConsoleCommandSender as RCon;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
 use pocketmine\level\Level;
+use pocketmine\permission\DefaultPermissions as DP;
+use pocketmine\permission\Permission;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class HubPlugin extends PluginBase implements Listener{
 	const REGISTER	= 0b00010;
-	const HUB		= 0b01000;
+	const HUB		= 0b01000; // I consider hub as a NOBLE minigame
 	const PVP		= 0b01001; // KitPvP
 	const PK		= 0b01010; // Parkour
 	const SPLEEF	= 0b01101; // Touch-Spleef
@@ -49,6 +51,8 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	public function onEnable(){
 		console(TextFormat::AQUA."Initializing Hub... ", false);
+		$this->initConfig();
+		$this->initPerms();
 		$this->initObjects();
 		$this->registerHandles();
 		$this->initCmds();
@@ -60,26 +64,45 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->config->save();
 		console(TextFormat::GREEN."Done!");
 	}
-	protected function initObjects(){ // initialize classes
-		if(true){
+	protected function initObjects(){ // initialize objects: Team, Hub, other minigames
+		Team::init();
+		Hub::init();
+		Pvp::init();
+		Pk::init();
+		Spleef::init();
+		CTF::init();
+	}
+	protected function initPerms(){
+		$root = DP::registerPermission(new Permission("legionpe", "Allow using all LegionPE commands and utilities"));
+		// minigames
+		$mgs = DP::registerPermission(new Permission("legionpe.mg", "Allow doing actions in minigames"), $root);
+		// commands
+		$cmds = DP::registerPermission(new Permission("legionpe.cmd"), $root);
+		$pcmds = DP::registerPermission(new Permission("legionpe.cmd.players", "Allow using player-spawn-despawn-related commands"), $cmd);
+		foreach(array("show", "hide") as $act)
+			DP::registerPermission(new Permission("legionpe.cmd.players.$act", "Allow using command /$act", Permission::DEFAULT_TRUE), $cmd);
+		DP::registerPermission(new Permission("legionpe.cmd.auth", "Allow using command /auth", Permission::DEFAULT_TRUE), $cmd);
+		DP::registerPermission(new Permission("legionpe.cmd.mg.quit", "Allow using command /quit", Permission::DEFAULT_TRUE), $cmd);
+	}
+	protected function initConfig(){
 			$this->config = new Config($this->getServer()->getDataPath()."general-config.yml", Config::YAML, array(
 				"kitpvp"=>array(
 					"prefixes"=>array(
-						"fighter"=>25,
-						"killer"=>75,
-						"dangerous"=>150,
-						"hard"=>250,
-						"beast"=>375,
-						"elite"=>525,
-						"warrior"=>675,
-						"knight"=>875,
-						"addict"=>1100,
-						"unstoppable"=>1350,
-						"pro"=>1625,
-						"hardcore"=>1925,
-						"master"=>2250,
-						"legend"=>2600,
-						"god"=>2975,
+						"fighter"		=>25,
+						"killer"		=>75,
+						"dangerous"		=>150,
+						"hard"			=>250,
+						"beast"			=>375,
+						"elite"			=>525,
+						"warrior"		=>675,
+						"knight"		=>875,
+						"addict"		=>1100,
+						"unstoppable"	=>1350,
+						"pro"			=>1625,
+						"hardcore"		=>1925,
+						"master"		=>2250,
+						"legend"		=>2600,
+						"god"			=>2975,
 					),
 					"auto-equip"=>array(
 						"player"=>array(
@@ -200,13 +223,6 @@ class HubPlugin extends PluginBase implements Listener{
 					),
 				),
 			));
-		}
-		Team::init();
-		Hub::init();
-		Pvp::init();
-		Pk::init();
-		Spleef::init();
-		CTF::init();
 	}
 	protected function registerHandles(){ // register events
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin", "PlayerQuit") as $e)
@@ -218,23 +234,34 @@ class HubPlugin extends PluginBase implements Listener{
 				EventPriority::HIGHEST, new CallbackEventExe(array($this, "evt")), $this, false);
 	}
 	public function initCmds(){ // register commands
+		if("quit" === "quit"){
 		$cmd = new PluginCommand("quit", $this);
 		$cmd->setUsage("/quit");
 		$cmd->setDescription("Quit the current minigame, if possible");
+		$cmd->setPermission("legionpe.cmd.mg.quit");
 		$cmd->register($this->getServer()->getCommandMap());
+		}
+		if("show" === "show"){
 		$cmd = new PluginCommand("show", $this);
 		$cmd->setUsage("/show <invisible player|all>");
 		$cmd->setDescription("Attempt to show an invisible player");
 		$cmd->setPermission("legionpe.cmd.players.show");
 		$cmd->register($this->getServer()->getCommandMap());
-		$cmd = new PluginCommand("hide", $this);
-		$cmd->setUsage("/hide <player to hide>");
-		$cmd->setDescription("Make a player invisible to you");
-		$cmd->setPermission("legionpe.cmd.players.hide");
-		$cmd->register($this->getServer()->getCommandMap());
-		$cmd = new PluginCommand("auth", $this);
-		$cmd->setUsage("/auth <ip|help> [args ...]");
-		$cmd->register($his->getServer()->getCommandMap());
+		}
+		if("hide" === "hide"){
+			$cmd = new PluginCommand("hide", $this);
+			$cmd->setUsage("/hide <player to hide>");
+			$cmd->setDescription("Make a player invisible to you");
+			$cmd->setPermission("legionpe.cmd.players.hide");
+			$cmd->register($this->getServer()->getCommandMap());
+		}
+		if("auth" === "auth"){
+			$cmd = new PluginCommand("auth", $this);
+			$cmd->setUsage("/auth <ip|help> [args ...]");
+			$cmd->setDescription("Auth-related commands");
+			$cmd->setPermission("legionpe.cmd.auth");
+			$cmd->register($his->getServer()->getCommandMap());
+		}
 	}
 	public function onCommand(CommandSender $issuer, Command $cmd, $label, array $args){ // handle commands
 		switch($cmd->getName()){
@@ -317,6 +344,7 @@ class HubPlugin extends PluginBase implements Listener{
 				break;
 			case "PlayerJoin": // open database, check password (decide (registry wizard / IP auth / password auth))
 				// console("[INFO] ".$p->getDisplayName()." entered the game.");
+				Hub::get()->setChannel($p, "legionpe.chat.mute.".$p->CID);
 				$event->setMessage("");
 				$this->openDb($p);
 				if($this->getDb($p)->get("pw-hash") === false){ // request register (LegionPE registry wizard), if password doesn't exist
@@ -428,11 +456,13 @@ class HubPlugin extends PluginBase implements Listener{
 		}
 	}
 	public function onRegistered(Player $p){ // set session to self::HUB and choose team, on registry success
+		Hub::get()->setChannel($p, "legionpe.chat.mute.".$p->CID);
 		$p->teleport(Loc::chooseTeamStd());
 		$this->sessions[$p->CID] = self::HUB;
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
 	public function onAuthPlayer(Player $p){ // set session to self::HUB, tp to spawn, ensure tp, call PlayerAuthEvent
+		Hub::get()->setChannel($p, "legionpe.chat.general");
 		$this->sessions[$p->CID] = self::HUB;
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Loc::spawn();
@@ -464,7 +494,7 @@ class HubPlugin extends PluginBase implements Listener{
 	public final static function getPrefixOrder(){ // get the order of prefixes as well as filters
 		return array("rank"=>"all", "team"=>"all", "kitpvp"=>"pvp", "kitpvp-rank"=>"pvp", "kitpvp-kills"=>"pvp", "parkour"=>"pk");
 	}
-	private function openDb($p){ // open and initialize the database of a player
+	protected function openDb($p){ // open and initialize the database of a player
 		@mkdir($path = $this->playerPath.substr(strtolower($p->getName()), 0, 1)."/");
 		$config = new Config($path.strtolower($p->getName()), Config::YAML, array(
 			"pw-hash" => false, // I don't care whether they are first time or not, just care they registered or not
@@ -500,7 +530,7 @@ class HubPlugin extends PluginBase implements Listener{
 		}
 		$this->dbs[strtolower($p->getName())] = $config;
 	}
-	private function closeDb(Player $p){ // save and finalize the database of a player
+	protected function closeDb(Player $p){ // save and finalize the database of a player
 		$this->dbs[strtolower($p->getName())]->save();
 		unset($this->dbs[strtolower($p->getName())]);
 	}
@@ -510,7 +540,7 @@ class HubPlugin extends PluginBase implements Listener{
 		else $iname = strtolower($p->getName());
 		return @$this->dbs[$iname];
 	}
-	private function hash($string){ // top secret: password hash (very safe hash indeed... so much salt...)
+	protected function hash($string){ // top secret: password hash (very safe hash indeed... so much salt...)
 		$salt = "";
 		for($i = strlen($string) - 1; $i >= 0; $i--)
 			$salt .= $string{$i};

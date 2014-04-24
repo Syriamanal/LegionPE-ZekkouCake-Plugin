@@ -69,3 +69,45 @@ LegionPE ZekkouCake Plugins
 
 ## Done
 * None of course :(
+
+# Permissions
+LegoinPE::
+* legionpe.mg
+ * legionpe.mg.**.join
+* legionpe.cmd
+ * legionpe.cmd.auth
+ * legionpe.cmd.players (remove this?)
+  * legionpe.cmd.players.show
+  * leginope.cmd.players.hide
+ * legionpe.cmd.mg.**.***
+
+PvP:
+
+* legionpe.mg.pvp
+ * legionpe.mg.pvp.spawnattack
+* legionpe.cmd.mg.pvp
+ * legionpe.cmd.mg.pvp.pvp
+ * legionpee.cmd.mg.pvp.kills
+
+Chat channels:
+
+* legionpe.chat
+ * legionpe.chat.mandatory (always true)
+ * legionpe.chat.general
+ * legionpe.chat.mute
+  * legionpe.chat.mute.<CID>
+ * legionpe.chat.team.<TID>
+ * legionpe.chat.pvp
+ * legionpe.chat.pk
+ * legionpe.chat.ctf.public
+ * legionpe.chat.ctf.<TID>
+ * legionpe.chat.spleef.public
+ * legionpe.chat.spleef.<SID>
+
+# Appendix:
+* IDS
+ * SID: SpleefArena ID
+ * TID: Team ID
+ * CID: Client ID
+ * EID: Entity ID
+ * PID: Packet ID

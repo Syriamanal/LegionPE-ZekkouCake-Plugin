@@ -7,14 +7,3 @@ prefix: LegionPE
 website: https://github.com/mcpesrccode/LegionPE-ZekkouCake-Plugin
 api: [1.0.0]
 version: Delta 3.0
-permissions:
-  legionpe.cmd.players:
-    description: "Allow a player to use spawn-despawn-related commands."
-    default: true
-    children:
-      legionpe.cmd.players.show:
-        default: true
-        description: "Allow a player to use /show"
-      legionpe.cmd.players.hide:
-        default: true
-        description: "Allow a player to use /hide"
