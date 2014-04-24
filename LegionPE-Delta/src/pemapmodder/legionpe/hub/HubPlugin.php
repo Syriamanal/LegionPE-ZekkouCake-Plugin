@@ -225,10 +225,12 @@ class HubPlugin extends PluginBase implements Listener{
 		$cmd = new PluginCommand("show", $this);
 		$cmd->setUsage("/show <invisible player|all>");
 		$cmd->setDescription("Attempt to show an invisible player");
+		$cmd->setPermission("legionpe.cmd.players.show");
 		$cmd->register($this->getServer()->getCommandMap());
 		$cmd = new PluginCommand("hide", $this);
 		$cmd->setUsage("/hide <player to hide>");
 		$cmd->setDescription("Make a player invisible to you");
+		$cmd->setPermission("legionpe.cmd.players.hide");
 		$cmd->register($this->getServer()->getCommandMap());
 		$cmd = new PluginCommand("auth", $this);
 		$cmd->setUsage("/auth <ip|help> [args ...]");
