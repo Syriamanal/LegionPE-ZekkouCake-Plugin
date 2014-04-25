@@ -48,9 +48,13 @@ class Pvp implements Listener{
 		// commands
 		$cmd = new Cmd("pvp", $this);
 		$cmd->setDescription("Get the PvP kit!");
-		// $cmd->setUsage("");
+		$cmd->setUsage("/pvp");
 		$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
 		$cmd->setAliases(array("kit"));
+		$cmd->register($this->server->getCommandMap());
+		$cmd = new Cmd("kills", $this);
+		$cmd->setDescription("View your kills or top kills");
+		$cmd->setUsage("/kills [top]");
 		$cmd->register($this->server->getCommandMap());
 	}
 	public function onDeath(Event $event){
@@ -94,6 +98,9 @@ class Pvp implements Listener{
 		if(RawLocs::safeArea()->isInside($event->getPlayer())){
 			$event->setCancelled(true);
 			$event->getPlayer()->sendMessage("You may not attack people here!");
+		}
+		elseif($this->hub->getTeam($event->getPlayer()) === $this->hub->getTeam($event->getVictim())){
+			$event->setCancelled(true);
 		}
 	}
 	public function onKill(Player $killer){
