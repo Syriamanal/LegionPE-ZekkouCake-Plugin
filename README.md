@@ -87,7 +87,7 @@ PvP:
  * legionpe.mg.pvp.spawnattack
 * legionpe.cmd.mg.pvp
  * legionpe.cmd.mg.pvp.pvp
- * legionpee.cmd.mg.pvp.kills
+ * legionpe.cmd.mg.pvp.kills
 
 Chat channels:
 
