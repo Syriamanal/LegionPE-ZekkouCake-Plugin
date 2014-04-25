@@ -95,14 +95,14 @@ Chat channels:
  * legionpe.chat.mandatory (always true)
  * legionpe.chat.general
  * legionpe.chat.mute
-  * legionpe.chat.mute.<CID>
- * legionpe.chat.team.<TID>
+  * legionpe.chat.mute.{CID}
+ * legionpe.chat.team.{TID}
  * legionpe.chat.pvp
  * legionpe.chat.pk
  * legionpe.chat.ctf.public
- * legionpe.chat.ctf.<TID>
+ * legionpe.chat.ctf.{TID}
  * legionpe.chat.spleef.public
- * legionpe.chat.spleef.<SID>
+ * legionpe.chat.spleef.{SID}
 
 # Appendix:
 * IDS
