@@ -19,6 +19,14 @@ use pocketmine\permission\Permission as Perm;
 
 class Pvp implements Listener{
 	public $pvpDies = array();
+	protected $attachments = array();
+	public function onJoin(Player $p){
+		$this->attachments[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.pvp", true);
+	}
+	public function onQuit(Player $p){
+		$p->removeAttachment($this->attachment[$p->CID]);
+		unset($this->attachments[$p->CID]);
+	}
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$this->hub = HubPlugin::get();
