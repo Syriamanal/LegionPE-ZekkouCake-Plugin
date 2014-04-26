@@ -46,13 +46,13 @@ class Pvp implements Listener{
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
 		// commands
-		$cmd = new Cmd("pvp", $this);
+		$cmd = new Cmd("pvp", $this->hub);
 		$cmd->setDescription("Get the PvP kit!");
 		$cmd->setUsage("/pvp");
 		$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
 		$cmd->setAliases(array("kit"));
 		$cmd->register($this->server->getCommandMap());
-		$cmd = new Cmd("kills", $this);
+		$cmd = new Cmd("kills", $this->hub);
 		$cmd->setDescription("View your kills or top kills");
 		$cmd->setUsage("/kills [top]");
 		$cmd->register($this->server->getCommandMap());
