@@ -9,4 +9,6 @@ interface MgMain{
 	public function onQuitMg(Player $player);
 	public function getName();
 	public function getSessionId();
+	public function getSpawn(Player $player);
+	public function getDefaultChatChannel(Player $player, $TID);
 }

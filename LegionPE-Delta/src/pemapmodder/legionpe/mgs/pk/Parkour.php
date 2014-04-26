@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\mgs\pk;
 
 use pemapmodder\legionpe\hub\HubPlugin;
+use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe;
 
@@ -13,7 +14,7 @@ use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 
-class Parkour implements Listener{
+class Parkour implements Listener, MgMain{
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$pm = $this->server->getPluginManager();
@@ -38,6 +39,19 @@ class Parkour implements Listener{
 				$config->save();
 			}
 		}
+	}
+	public function onJoinMg(Player $p){
+	}
+	public function onQuitMg(Player $p){
+	}
+	public function getName(){
+		return "Parkour";
+	}
+	public function getSessionId(){
+		return HubPlugin::PK;
+	}
+	public function getDefaultChatChannel(Player $p, $t){
+		return "legionpe.chat.pk.public";
 	}
 	public static $i = false;
 	public static function get(){

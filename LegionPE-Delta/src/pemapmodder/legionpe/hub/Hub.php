@@ -5,6 +5,7 @@ namespace pemapmodder\legionpe\hub;
 use pemapmodder\legionpe\geog\RawLocs as RL;
 use pemapmodder\legionpe\hub\Team;
 use pemapmodder\legionpe\mgs\MgMain;
+use pemapmodder\legionpe\mgs\pvp\Pvp;
 
 use pemapmodder\utils\CallbackEventExe;
 use pemapmodder\utils\CallbackPluginTask;
@@ -21,12 +22,12 @@ class Hub implements Listener{
 	public $teleports = array();
 	protected $channels = array();
 	private $defaultChannels = array(
-		"legionpe.chat.general",
+		"legionpe.chat.general", // This format familiar? Yes, I wanted to make them permissions but ended up using them purely as strings
 		"legionpe.chat.mute.<CID>",
 		"legionpe.chat.team.<TID>",
 		"legionpe.chat.pvp.public",
 		"legionpe.chat.pvp.<TID>",
-		"legionpe.chat.pvp.public",
+		"legionpe.chat.pk.public",
 		"legionpe.chat.pk.<TID>",
 		"legionpe.chat.ctf.public",
 		"legionpe.chat.ctf.<TID>",
@@ -98,19 +99,21 @@ class Hub implements Listener{
 		if(time() - @$this->teleports[strtolower($p->getName())] <= 3)
 			return;
 		if(RL::enterPvpPor()->isInside($p)){
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pvpSpawn()), 40);
-			$p->teleport(RL::pvpSpawn());
+			$this->server->getScheduler()->scheduleDelayedTask(
+					new CallbackPluginTask(array($p, "teleport"), $this->hub, Pvp::get()->getSpawn($p)), 40);
+			$p->teleport(Pvp::get()->getSpawn($p));
 			$p->sendMessage("You are teleported to the");
-			$p->sendMessage("  PvP world! You might lag!");
+			$p->sendMessage("  ".Pvp::get()->getName()." world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 			$this->hub->sessions[$p->CID] = HubPlugin::PVP;
-			$this->channels[$p->CID] = "legionpe.chat.pvp.public";
+			$this->channels[$p->CID] = Pvp::get()->getDefaultChatChannel($p, $this->hub->getDb($p)->get("team"));
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackPluginTask(array($p, "teleport"), $this, RL::pkSpawn()), 40);
-			$p->teleport(RL::pkSpawn());
+			$this->server->getScheduler()->scheduleDelayedTask(
+					new CallbackPluginTask(array($p, "teleport"), $this->hub, Parkour::get()->getSpawn($p)), 40);
+			$p->teleport(Parkour::get()->getSpawn($p));
 			$p->sendMessage("You are teleported to the");
-			$p->sendMessage("  parkour world! You might lag!");
+			$p->sendMessage("  ".Parkour::get()->getName()." world! You might lag!");
 			$this->teleports[strtolower($p->getName())] = time();
 			$this->hub->sessions[$p->CID] = HubPlugin::PK;
 			$this->channels[$p->CID] = "legionpe.chat.pk.public";

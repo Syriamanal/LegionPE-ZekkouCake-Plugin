@@ -91,10 +91,13 @@ class Pvp implements CmdExe, Listener{
 		unset($this->attachments[$p->CID]);
 	}
 	public function getName(){
-		return "PvP";
+		return "KitPvP";
 	}
 	public function getSessionId(){
 		return HubPlugin::PVP;
+	}
+	public function getDefualtChatChannel(Player $player, $tid){
+		return "legionpe.chat.pvp.$tid";
 	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
