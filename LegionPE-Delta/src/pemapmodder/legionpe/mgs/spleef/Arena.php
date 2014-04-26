@@ -73,9 +73,15 @@ class Arena{
 	}
 	public function start(){
 		$this->build(count($this->preps));
+		// TODO broadcast
 	}
 	public function end($reason = ""){
-		
+		// TODO end
+	}
+	public function broadcast($message, $ret = null){
+		foreach($this->players as $p)
+			$p->sendMessage($message);
+		return $ret;
 	}
 	public function onInteract($event){
 		$event->setCancelled(true);

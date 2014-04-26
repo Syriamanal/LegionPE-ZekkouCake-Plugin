@@ -55,6 +55,12 @@ class Pvp implements CmdExe, Listener{
 		$cmd->register($this->server->getCommandMap());
 	}
 	public function onCommand(Issuer $isr, Command $cmd, $label, array $args){
+		switch("$cmd"){
+			case "pvp":
+				break;
+			case "quit":
+				break;
+		}
 	}
 	public function onDeath(Event $event){
 		$p = $event->getEntity();
@@ -83,6 +89,12 @@ class Pvp implements CmdExe, Listener{
 	public function onQuitMg(Player $p){
 		$p->removeAttachment($this->attachment[$p->CID]);
 		unset($this->attachments[$p->CID]);
+	}
+	public function getName(){
+		return "PvP";
+	}
+	public function getSessionId(){
+		return HubPlugin::PVP;
 	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
