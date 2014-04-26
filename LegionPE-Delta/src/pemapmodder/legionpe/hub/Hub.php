@@ -4,6 +4,7 @@ namespace pemapmodder\legionpe\hub;
 
 use pemapmodder\legionpe\geog\RawLocs as RL;
 use pemapmodder\legionpe\hub\Team;
+use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe;
 use pemapmodder\utils\CallbackPluginTask;
@@ -19,7 +20,7 @@ class Hub implements Listener{
 	public $server;
 	public $teleports = array();
 	protected $channels = array();
-	public $defaultChannels = array(
+	private $defaultChannels = array(
 		"legionpe.chat.general",
 		"legionpe.chat.mute.<CID>",
 		"legionpe.chat.team.<TID>",
@@ -52,6 +53,10 @@ class Hub implements Listener{
 		$evt->setRecipients($rec);
 		$format = $this->getPrefixes($p)."%s: %s";
 		$evt->setFormat($format);
+	}
+	public function onQuitCmd($issuer, array $args){
+		// TODO quit
+		return true;
 	}
 	protected function getPrefixes(Player $player){
 		$prefix = "";
@@ -111,6 +116,10 @@ class Hub implements Listener{
 			$this->channels[$p->CID] = "legionpe.chat.pk.public";
 		}
 	}
+	public function joinMg(Player $p, MgMain $mg){
+		
+		// TODO: Move to MgMain::onJoinMg(Player)
+	}
 	public function setChannel(Player $player, $channel = "legionpe.chat.general"){
 		$this->channels[$player->CID] = $channel;
 	}
@@ -128,6 +137,12 @@ class Hub implements Listener{
 					if($this->getChannel($player) === $this->getChannel($p) or $this->getChannel($p) === "legionpe.chat.mandatory")
 						$player->sendMessage("* {$this->getPrefixes($player)}{$player->getDisplayName()} ".implode(" ", $cmd));
 				}
+				break;
+			case "spawn":
+				$event->setCancelled(true);
+				$event->getPlayer()->sendMessage("Reminder: use /quit next time!");
+				$this->server->dispatchCommand($event->getPlayer(), "quit".substr($event->getMessage(), 1 + 5)); // "/" . "spawn": 1 + 5
+				break;
 		}
 	}
 	public static $inst = false;

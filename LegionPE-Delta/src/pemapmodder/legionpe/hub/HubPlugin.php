@@ -82,7 +82,7 @@ class HubPlugin extends PluginBase implements Listener{
 		foreach(array("show", "hide") as $act)
 			DP::registerPermission(new Permission("legionpe.cmd.players.$act", "Allow using command /$act", Permission::DEFAULT_TRUE), $cmd);
 		DP::registerPermission(new Permission("legionpe.cmd.auth", "Allow using command /auth", Permission::DEFAULT_TRUE), $cmd);
-		DP::registerPermission(new Permission("legionpe.cmd.mg.quit", "Allow using command /quit", Permission::DEFAULT_TRUE), $cmd);
+		DP::registerPermission(new Permission("legionpe.cmd.mg.quit", "Allow using command /quit", Permission::DEFAULT_FALSE), $cmd);
 	}
 	protected function initConfig(){
 			$this->config = new Config($this->getServer()->getDataPath()."general-config.yml", Config::YAML, array(
@@ -330,6 +330,8 @@ class HubPlugin extends PluginBase implements Listener{
 					break;
 			}
 			break;
+		case "quit":
+			Hub::get()->onQuitCmd($issuer, $args);
 		}
 		return true;
 	}

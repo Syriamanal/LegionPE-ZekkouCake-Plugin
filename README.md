@@ -7,6 +7,7 @@ LegionPE ZekkouCake Plugins
 * Core commands
  * /show and /hide
  * /auth
+ * /quit (Minigame implementation)
 * Auth API
  * Main plugin array field $sessions
  * Non-logged-in action blockage: pre-login world for that?

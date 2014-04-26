@@ -7,9 +7,13 @@ use pemampodder\legionpe\hub\Team;
 
 use pemapmodder\utils\CallbackEventExe as EvtExe;
 use pemapmodder\utils\CallbackPluginTask as Task;
+use pemapmodder\utils\PluginCmdExt as Cmd;
 
 use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\command\Command;
+use pocketmine\command\CommandExecutor as CmdExe;
+use pocketmine\command\CommandSender as Issuer;
 use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
@@ -17,16 +21,9 @@ use pocketmine\item\Item;
 use pocketmine\permisison\DefaultPermissions as DP;
 use pocketmine\permission\Permission as Perm;
 
-class Pvp implements Listener{
+class Pvp implements CmdExe, Listener{
 	public $pvpDies = array();
 	protected $attachments = array();
-	public function onJoin(Player $p){
-		$this->attachments[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.pvp", true);
-	}
-	public function onQuit(Player $p){
-		$p->removeAttachment($this->attachment[$p->CID]);
-		unset($this->attachments[$p->CID]);
-	}
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$this->hub = HubPlugin::get();
@@ -46,16 +43,18 @@ class Pvp implements Listener{
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
 		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
 		// commands
-		$cmd = new Cmd("pvp", $this->hub);
+		$cmd = new Cmd("pvp", $this->hub, $this);
 		$cmd->setDescription("Get the PvP kit!");
 		$cmd->setUsage("/pvp");
 		$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
 		$cmd->setAliases(array("kit"));
 		$cmd->register($this->server->getCommandMap());
-		$cmd = new Cmd("kills", $this->hub);
+		$cmd = new Cmd("kills", $this->hub, $this);
 		$cmd->setDescription("View your kills or top kills");
 		$cmd->setUsage("/kills [top]");
 		$cmd->register($this->server->getCommandMap());
+	}
+	public function onCommand(Issuer $isr, Command $cmd, $label, array $args){
 	}
 	public function onDeath(Event $event){
 		$p = $event->getEntity();
@@ -77,6 +76,13 @@ class Pvp implements Listener{
 		$config->save();
 		$p->sendMessage("Your number of deaths is now {$data["deaths"]}!");
 		$event->setMessage(""); // @shoghicp, you must add this!
+	}
+	public function onJoinMg(Player $p){
+		$this->attachments[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.pvp", true);
+	}
+	public function onQuitMg(Player $p){
+		$p->removeAttachment($this->attachment[$p->CID]);
+		unset($this->attachments[$p->CID]);
 	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
