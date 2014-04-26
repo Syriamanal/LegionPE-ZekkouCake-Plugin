@@ -96,32 +96,25 @@ class Hub implements Listener{
 		$p = $evt->getEntity();
 		if(!($p instanceof Player))
 			return;
-		if(time() - @$this->teleports[strtolower($p->getName())] <= 3)
+		if(time() - @$this->teleports[$p->CID] <= 3)
 			return;
 		if(RL::enterPvpPor()->isInside($p)){
-			$this->server->getScheduler()->scheduleDelayedTask(
-					new CallbackPluginTask(array($p, "teleport"), $this->hub, Pvp::get()->getSpawn($p)), 40);
-			$p->teleport(Pvp::get()->getSpawn($p));
-			$p->sendMessage("You are teleported to the");
-			$p->sendMessage("  ".Pvp::get()->getName()." world! You might lag!");
-			$this->teleports[strtolower($p->getName())] = time();
-			$this->hub->sessions[$p->CID] = HubPlugin::PVP;
-			$this->channels[$p->CID] = Pvp::get()->getDefaultChatChannel($p, $this->hub->getDb($p)->get("team"));
+			$this->joinMg($p, Pvp::get());
 		}
 		elseif(RL::enterPkPor()->isInside($p)){
-			$this->server->getScheduler()->scheduleDelayedTask(
-					new CallbackPluginTask(array($p, "teleport"), $this->hub, Parkour::get()->getSpawn($p)), 40);
-			$p->teleport(Parkour::get()->getSpawn($p));
-			$p->sendMessage("You are teleported to the");
-			$p->sendMessage("  ".Parkour::get()->getName()." world! You might lag!");
-			$this->teleports[strtolower($p->getName())] = time();
-			$this->hub->sessions[$p->CID] = HubPlugin::PK;
-			$this->channels[$p->CID] = "legionpe.chat.pk.public";
+			$this->joinMg($p, Parkour::get());
 		}
 	}
-	public function joinMg(Player $p, MgMain $mg){
-		
-		// TODO: Move to MgMain::onJoinMg(Player)
+	protected function joinMg(Player $p, MgMain $mg){
+		$this->server->getScheduler()->scheduleDelayedTask(
+				new CallbackPluginTask(array($p, "teleport"), $this->hub, $mg->getSpawn($p)), 40);
+		$p->teleport($mg->getSpawn($p));
+		$p->sendMessage("You are teleported to the");
+		$p->sendMessage("  ".$mg->getName()." world! You might lag!");
+		$this->teleports[$p->CID] = time();
+		$this->hub->sessions[$p->CID] = $mg->getSessionId();
+		$this->setChannel($p, $mg->getDefaultChatChannel());
+		$mg->onJoinMg($p);
 	}
 	public function setChannel(Player $player, $channel = "legionpe.chat.general"){
 		$this->channels[$player->CID] = $channel;
