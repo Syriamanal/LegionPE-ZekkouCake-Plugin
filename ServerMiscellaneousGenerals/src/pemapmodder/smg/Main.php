@@ -6,7 +6,8 @@ use pocketmine\Player;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender as Isr;
 use pocketmine\command\PluginCommand as Cmd;
-use pocketmine\event\Event;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\plugin\PluginBase as PB;
 
 class Main extends PB{
@@ -29,27 +30,25 @@ class Main extends PB{
 		file_put_contents($path, yaml_emit($data));
 	}
 	/**
-	 * @param PlayerJoinEvent $evt
 	 * @priority HIGH
 	 */
-	public function onJoin(Event $evt){
-		$this->sessions[$evt->getPlayer()->getCID()] = time();
+	public function onJoin(PlayerJoinEvent $evt){
+		$this->sessions[$evt->getPlayer()->CID] = time();
 	}
 	/**
-	 * @param PlayerQuitEvent $evt
 	 * @priority HIGH
 	 */
-	public function onQuit(Event $evt){
-		if(!isset($this->sessions[$evt->getPlayer()->getCID()])) return;
+	public function onQuit(PlayerQuitEvent $evt){
+		if(!isset($this->sessions[$evt->getPlayer()->CID])) return;
 		$this->updateSessions($evt->getPlayer());
-		unset($this->sessions[$evt->getPlayer()->getCID()]);
+		unset($this->sessions[$evt->getPlayer()->CID]);
 	}
 	public function updateSession($player){
 		if(file_exists($file = $this->getServer()->getDatapath()."session-seconds/".$player->getName().".txt"))
 		$secs = (int) file_get_contents($file);
 		$secs += time();
-		$secs -= $this->sessions[$player->getCID()];
-		$this->sessions[$player->getCID()] = time();
+		$secs -= $this->sessions[$player->CID];
+		$this->sessions[$player->CID] = time();
 		file_put_contents($file, "$secs");
 		return $secs;
 	}
