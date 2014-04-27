@@ -6,26 +6,50 @@ use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe;
+use pemapmodder\utils\PluginCmdExt as Cmd;
 
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\block\SignPost;
+use pocketmine\command\Command;
+use pocketmine\command\CommandExecutor as CmdExe;
+use pocketmine\command\CommandSender as Issuer;
 use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
+use pocketmine\permission\DefaultPermissions as DP;
+use pocketmine\permission\Permission as Perm;
 
-class Parkour implements Listener, MgMain{
+class Parkour implements CmdExe, Listener, MgMain{
 	protected $prefixes = array(
 		0=>"easy",
 		1=>"medium",
 		2=>"hard",
 		3=>"extreme"
 	);
+	protected $attachments = array();
 	public function __construct(){
 		$this->server = Server::getInstance();
+		$this->hub = HubPlugin::get();
 		$pm = $this->server->getPluginManager();
+		// events
 		$pm->registerEvent("pocketmine\\event\\entity\\EntityMoveEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onMove")), HubPlugin::get());
 		$pm->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onInteract")), HubPlugin::get());
+		// permission
+		// cmd perms
+		$cmdPerm = DP::registerPermission(new Perm("legionpe.cmd.mg.pk", "Allow using parkour commands", Perm::DEFAULT_FALSE), $pm->getPermission("legionpe.cmd.mg"));
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pk.stats", "Allow using /stats for parkour minigame"), $cmdPerm);
+		// command
+		$cmd = new Cmd("stats", HubPlugin::get(), $this);
+		$cmd->setAliases(array("stat"));
+		$cmd->setDescription("View parkour stats");
+		$cmd->setPermission("legionpe.cmd.mg.pk.stats");
+	}
+	public function onCommand(Issuer $issuer, Command $cmd, $label, array $args){
+		switch($cmd->getName()){
+			case "stats":
+				return $this->getStats();
+		}
 	}
 	public function onMove(Event $event){
 		if(($p = $event->getEntity()) instanceof Player){
@@ -52,8 +76,11 @@ class Parkour implements Listener, MgMain{
 		}
 	}
 	public function onJoinMg(Player $p){
+		$this->attachments[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.pk", true);
 	}
 	public function onQuitMg(Player $p){
+		$p->removeAttachment($this->attachments[$p->CID]);
+		unset($this->attachments[$p->CID]);
 	}
 	public function getName(){
 		return "Parkour";

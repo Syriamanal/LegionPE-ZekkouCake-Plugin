@@ -30,9 +30,9 @@ class Pvp implements CmdExe, Listener{
 		// permissions
 		// cmd perms
 		$mgs = $this->server->getPluginManager()->getPermission("legionpe.cmd.mg");
-		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using PvP minigame commands"), $mgs);
-		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame", Perm::DEFAULT_FALSE), $mg); // DEFAULT_FALSE because minigame-only
-		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame", Perm::DEFAULT_FALSE), $mg);
+		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using PvP minigame commands", Perm::DEFAULT_FALSE), $mgs);
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame"), $mg); // DEFAULT_FALSE because minigame-only
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame"), $mg);
 		// actions perms
 		$mgs = $this->server->getPluginManager()->getPermission("legionpe.mg");
 		$mg = DP::registerPermission(new Perm("legionpe.mg.pvp", "Allow doing some actions in PvP minigame"), $mgs);
