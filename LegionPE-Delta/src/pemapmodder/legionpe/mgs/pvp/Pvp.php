@@ -119,7 +119,7 @@ class Pvp implements CmdExe, Listener{
 			$event->setCancelled(true);
 	}
 	public function onAttack(Event $event){
-		if(RawLocs::safeArea()->isInside($event->getPlayer())){
+		if(RawLocs::safeArea()->isInside($event->getPlayer()) and !$event->getPlayer()->hasPermission("legionpe.mg.pvp.spawnattack")){
 			$event->setCancelled(true);
 			$event->getPlayer()->sendMessage("You may not attack people here!");
 		}
