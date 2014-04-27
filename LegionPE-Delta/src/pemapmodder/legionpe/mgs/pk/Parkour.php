@@ -15,6 +15,12 @@ use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 
 class Parkour implements Listener, MgMain{
+	protected $prefixes = array(
+		0=>"easy",
+		1=>"medium",
+		2=>"hard",
+		3=>"extreme"
+	);
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$pm = $this->server->getPluginManager();
@@ -31,9 +37,14 @@ class Parkour implements Listener, MgMain{
 	}
 	public function onInteract(Event $event){
 		if($event->getBlock() instanceof SignPost){
+			$event->setCancelled(true);
 			if(($pfx = RawLocs::signPrefix($event->getBlock())) !== false){
 				$config = HubPlugin::get()->getDb($event->getPlayer());
 				$prefixes = $config->get("prefixes");
+				if(array_search($prefixes["parkour"], $this->prefixes) >= array_search($pfx, $this->prefixes)){
+					$event->getPlayer()->sendMessage("You can't set your prefix to a lower level!\nYou (might have) spent so much effort getting \"".$prefixes["parkour"]."\".\nWhy give it up?");
+					return;
+				}
 				$prefixes["parkour"] = $pfx;
 				$config->set("prefixes", $prefixes);
 				$config->save();
