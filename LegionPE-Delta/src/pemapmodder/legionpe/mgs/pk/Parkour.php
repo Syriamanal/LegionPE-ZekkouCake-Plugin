@@ -52,6 +52,7 @@ class Parkour implements Listener, MgMain{
 		}
 	}
 	public function onJoinMg(Player $p){
+		
 	}
 	public function onQuitMg(Player $p){
 	}

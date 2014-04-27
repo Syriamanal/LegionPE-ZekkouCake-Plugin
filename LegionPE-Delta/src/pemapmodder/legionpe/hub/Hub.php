@@ -37,10 +37,12 @@ class Hub implements Listener{
 		"legionpe.chat.spleef.<SID>");
 	public function __construct(){
 		$this->server = Server::getInstance();
+		$this->hub = HubPlugin::get();
 		$pmgr = $this->server->getPluginManager();
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerInteractEvent", $this, EventPriority::LOW, new CallbackEventExe(array($this, "onInteractLP")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\entity\\EntityMoveEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onMove")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerChatEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onChat")), HubPlugin::get());
+		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerQuitEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onQuit")), HubPlugin::get());
 		$pmgr->registerEvent("pocketmine\\event\\player\\PlayerCommandPreprocessEvent", $this, EventPriority::HIGH, new CallbackEventExe(array($this, "onPreCmd")), HubPlugin::get());
 	}
 	public function onChat(Event $evt){
@@ -58,6 +60,10 @@ class Hub implements Listener{
 	public function onQuitCmd($issuer, array $args){
 		// TODO quit
 		return true;
+	}
+	public function onQuit(Event $event){
+		if(($s = $this->hub->sessions[$event->getPlayer()->CID]) > HubPlugin::HUB and $s <= HubPlugin::ON)
+			$this->server->dispatchCommand($event->getPlayer(), "quit");
 	}
 	protected function getPrefixes(Player $player){
 		$prefix = "";
