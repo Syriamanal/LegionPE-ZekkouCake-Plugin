@@ -58,7 +58,7 @@ class Pvp implements CmdExe, Listener{
 		switch("$cmd"){
 			case "pvp":
 				break;
-			case "quit":
+			case "kills":
 				break;
 		}
 	}
@@ -134,6 +134,23 @@ class Pvp implements CmdExe, Listener{
 		$this->updatePrefix($killer, $data["kills"]);
 	}
 	protected function updatePrefix(Player $killer, $kills){
+		// update top kills
+		$data = $this->hub->config->get("kitpvp");
+		$tops = $data["top-kills"];
+		$tmp = array(strtolower($killer->getName()), $killer->getDisplayName());
+		$tmp2 = array(strtolower($killer->getName()), $kills);
+		foreach($tops as $name=>$cnt){
+			$tmp[strtolower($name)] = $name;
+			$tmp2[strtolower($name)] = $cnt;
+		}
+		arsort($tmp2, SORT_NUMERIC);
+		$tops = array();
+		foreach(array_slice($tmp2, 0, 5, true) as $key=>$cnt)
+			$tops[$tmp[$key]] = $cnt;
+		$data["top-kills"] = $tops;
+		$this->hub->config->set("kitpvp", $data);
+		$this->hub->config->save();
+		// prepare personal prefix
 		$pfxs = $this->hub->config->get("kitpvp")["prefixes"];
 		asort($pfxs, SORT_NUMERIC);
 		$pfx = "";
@@ -142,15 +159,7 @@ class Pvp implements CmdExe, Listener{
 				$pfx = $prefix;
 			else break;
 		}
-		$data = $this->hub->config->get("kitpvp");
-		$tops = $data["top-kills"];
-		$tops[$killer->getDisplayName()] = $kills;
-		arsort($tops);
-		if(count($tops) > 5)
-			$tops = array_slice($tops, 0, 5, true);
-		$data["top-kills"] = $tops;
-		$this->hub->config->set("kitpvp", $data);
-		$this->hub->config->save();
+		// set personal prefix
 		$data = $this->hub->getDb($killer)->get("prefixes");
 		$data["kitpvp"] = $pfx;
 		$data["kitpvp-kills"] = $kills;
@@ -172,5 +181,8 @@ class Pvp implements CmdExe, Listener{
 	public static $inst = false;
 	public static function init(){
 		self::$inst = new self();
+	}
+	public static function get(){
+		return self::$inst;
 	}
 }

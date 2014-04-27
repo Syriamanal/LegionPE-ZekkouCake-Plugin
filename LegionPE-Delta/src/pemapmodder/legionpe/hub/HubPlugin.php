@@ -13,6 +13,7 @@ use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
 
 use pocketmine\Player;
+use pocketmine\Server;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
@@ -51,6 +52,7 @@ class HubPlugin extends PluginBase implements Listener{
 	}
 	public function onEnable(){
 		console(TextFormat::AQUA."Initializing Hub... ", false);
+		$this->server = Server::getInstance();
 		$this->initConfig();
 		$this->initPerms();
 		$this->initObjects();
@@ -485,7 +487,7 @@ class HubPlugin extends PluginBase implements Listener{
 		// with reference to http://legionpvp.eu
 		$this->ranks = new Config($this->getServer()->getDataPath()."ranks.yml", Config::YAML, $def);
 	}
-	// local utils //
+	// utils //
 	public function getRank($p){ // get the lowercase rank of a player
 		foreach($this->ranks->getAll() as $rank=>$names){
 			if(in_array(strtolower($p->getName()), $names))
@@ -549,6 +551,12 @@ class HubPlugin extends PluginBase implements Listener{
 		$salt = @crypt($string, $salt);
 		return bin2hex((0xdeadc0de * hash(hash_algos()[17], $string.$salt, true)) ^ (0x6a7e1ee7 * hash(hash_algos()[31], strtolower($salt).$string, true)));
 	}
+	public function getSession(Player $p){
+		return $this->sessions[$p->CID];
+	}
+	// public function setSession(Player $p){
+		// return $this->sessions[$p->CID];
+	// }
 	public static $instance = false;
 	public static function get(){ // get instance
 		return self::$instance;
