@@ -112,14 +112,15 @@ class Hub implements Listener{
 		}
 	}
 	protected function joinMg(Player $p, MgMain $mg){
+		$TID = $this->hub->getDb($p)->get("team");
 		$this->server->getScheduler()->scheduleDelayedTask(
-				new CallbackPluginTask(array($p, "teleport"), $this->hub, $mg->getSpawn($p)), 40);
-		$p->teleport($mg->getSpawn($p));
+				new CallbackPluginTask(array($p, "teleport"), $this->hub, $mg->getSpawn($p, $TID)), 40);
+		$p->teleport($mg->getSpawn($p, $TID));
 		$p->sendMessage("You are teleported to the");
 		$p->sendMessage("  ".$mg->getName()." world! You might lag!");
 		$this->teleports[$p->CID] = time();
 		$this->hub->sessions[$p->CID] = $mg->getSessionId();
-		$this->setChannel($p, $mg->getDefaultChatChannel());
+		$this->setChannel($p, $mg->getDefaultChatChannel($p, $TID));
 		$mg->onJoinMg($p);
 	}
 	public function setChannel(Player $player, $channel = "legionpe.chat.general"){

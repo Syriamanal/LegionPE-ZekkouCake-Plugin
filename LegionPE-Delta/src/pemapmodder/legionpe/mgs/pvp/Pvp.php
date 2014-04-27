@@ -99,6 +99,9 @@ class Pvp implements CmdExe, Listener{
 	public function getDefualtChatChannel(Player $player, $tid){
 		return "legionpe.chat.pvp.$tid";
 	}
+	public function getSpawn(Player $player, $TID){
+		return RawLocs::pvpSpawn();
+	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
 		if(@$this->pvpDies[$p->CID] !== true)

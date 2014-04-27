@@ -224,6 +224,14 @@ class HubPlugin extends PluginBase implements Listener{
 						"staff"=>55,
 					),
 				),
+				"parkour"=>array(
+					"stats"=>array(
+						"easy"=>0,
+						"medium"=>0,
+						"hard"=>0,
+						"extreme"=>0,
+					),
+				),
 			));
 	}
 	protected function registerHandles(){ // register events

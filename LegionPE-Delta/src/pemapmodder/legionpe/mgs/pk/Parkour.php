@@ -22,10 +22,11 @@ use pocketmine\permission\Permission as Perm;
 
 class Parkour implements CmdExe, Listener, MgMain{
 	protected $prefixes = array(
-		0=>"easy",
-		1=>"medium",
-		2=>"hard",
-		3=>"extreme"
+		0=>"", // fix array_search() bug; hope it does xD
+		1=>"easy",
+		2=>"medium",
+		3=>"hard",
+		4=>"extreme"
 	);
 	protected $attachments = array();
 	public function __construct(){
@@ -55,9 +56,12 @@ class Parkour implements CmdExe, Listener, MgMain{
 		if(($p = $event->getEntity()) instanceof Player){
 			if($p->level->getName() === "world_parkour"){
 				if($p->y <= RawLocs::fallY())
-					$p->teleport(RawLocs::pk()->getSafeSpawn());
+					$p->teleport(RawLocs::pk()->());
 			}
 		}
+	}
+	public function getStats(){
+		return "~~~~~~~~Parkour stats~~~~~~~~\n".str_replace("\r", "", yaml_emit($this->hub->config->get("parkour")->get("stats")))."\n~~~~~~~~Parkour stats~~~~~~~~";
 	}
 	public function onInteract(Event $event){
 		if($event->getBlock() instanceof SignPost){
@@ -65,13 +69,18 @@ class Parkour implements CmdExe, Listener, MgMain{
 			if(($pfx = RawLocs::signPrefix($event->getBlock())) !== false){
 				$config = HubPlugin::get()->getDb($event->getPlayer());
 				$prefixes = $config->get("prefixes");
-				if(array_search($prefixes["parkour"], $this->prefixes) >= array_search($pfx, $this->prefixes)){
+				$original = $prefixes["parkour"];
+				if(($origIndex = array_search($prefixes["parkour"], $this->prefixes)) >= array_search($pfx, $this->prefixes)){
 					$event->getPlayer()->sendMessage("You can't set your prefix to a lower level!\nYou (might have) spent so much effort getting \"".$prefixes["parkour"]."\".\nWhy give it up?");
 					return;
 				}
 				$prefixes["parkour"] = $pfx;
 				$config->set("prefixes", $prefixes);
 				$config->save();
+				$db = $this->hub->config->get("parkour");
+				if($origIndex !== 0)
+					$db["stats"][$original]--;
+				$db["stats"][$pfx]++;
 			}
 		}
 	}
@@ -90,6 +99,9 @@ class Parkour implements CmdExe, Listener, MgMain{
 	}
 	public function getDefaultChatChannel(Player $p, $t){
 		return "legionpe.chat.pk.public";
+	}
+	public function getSpawn(Player $player, $t){
+		return RawLocs::pkSpawn();
 	}
 	public static $i = false;
 	public static function get(){
