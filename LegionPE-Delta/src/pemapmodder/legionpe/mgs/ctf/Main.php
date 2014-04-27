@@ -12,11 +12,7 @@ use pocketmine\Server;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 
-<<<<<<< HEAD
-class Main implements MgMain{
-=======
-class Main implements Listener{
->>>>>>> 657e12ace00e634bef8bdb1299a257051c9026c4
+class Main implements MgMain, Listener{
 	public $status = 0;
 	public $players = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
 	public function __construct(){
@@ -29,8 +25,7 @@ class Main implements Listener{
 		$this->current = new Game(Level::get(RawLocs::lvName()));
 		$this->server->registerEvent("pocketmine\\event\\server\\ServerStopEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "finalize")), $this->hub);
 	}
-	public function onJoinMg(Player $p){
-<<<<<<< HEAD
+  public function onJoinMg(Player $p){
 	}
 	public function onQuitMg(Player $p){
 	}
@@ -45,7 +40,6 @@ class Main implements Listener{
 	}
 	public function isJoinable(){
 		// TODO
-=======
 		if(@$this->current instanceof Game){
 			return $this->current->join($p);
 		}
@@ -53,7 +47,6 @@ class Main implements Listener{
 	}
 	public function finalize(){
 		@$this->current->finalize("server stop");
->>>>>>> 657e12ace00e634bef8bdb1299a257051c9026c4
 	}
 	public static $ctf = false;
 	public static function get(){
