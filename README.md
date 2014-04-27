@@ -1,4 +1,4 @@
-LegionPE ZekkouCake Plugins
+LegionPE ZekkouCake Plugin
 ===
 
 # Tasks
@@ -72,7 +72,7 @@ LegionPE ZekkouCake Plugins
 * None of course :(
 
 # Permissions
-LegoinPE::
+LegoinPE:
 * legionpe.mg
  * legionpe.mg.**.join
 * legionpe.cmd
