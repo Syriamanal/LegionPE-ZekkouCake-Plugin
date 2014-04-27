@@ -11,6 +11,7 @@ use pemapmodder\legionpe\mgs\ctf\Main as CTF;
 
 use pemapmodder\utils\CallbackPluginTask;
 use pemapmodder\utils\CallbackEventExe;
+use pemapmodder\utils\PluginCmdExt;
 
 use pocketmine\Player;
 use pocketmine\Server;
@@ -85,6 +86,10 @@ class HubPlugin extends PluginBase implements Listener{
 			DP::registerPermission(new Permission("legionpe.cmd.players.$act", "Allow using command /$act", Permission::DEFAULT_TRUE), $cmd);
 		DP::registerPermission(new Permission("legionpe.cmd.auth", "Allow using command /auth", Permission::DEFAULT_TRUE), $cmd);
 		DP::registerPermission(new Permission("legionpe.cmd.mg.quit", "Allow using command /quit", Permission::DEFAULT_FALSE), $cmd);
+		$chat = DP::registerPermission(new Permission("legionpe.cmd.chat", "Allow using command /chat", Permission::DEFAULT_TRUE), $cmd);
+		$ch = DP::registerPermission(new Permission("legionpe.cmd.chat.ch", "Allow using subcommand /chat ch", Permission::DEFAULT_TRUE), $chat);
+		DP::registerPermission(new Permission("legionpe.cmd.chat.ch.all", "Allow using subcommand /chat ch bypassing minigame session limitations", Permission::DEFAULT_OP), $ch);
+		DP::registerPermission(new Permission("legionpe.cmd.chat.mute", "Allowing using subcommand /chat mute", Permission::DEFAULT_TRUE), $chat);
 	}
 	protected function initConfig(){
 			$this->config = new Config($this->getServer()->getDataPath()."general-config.yml", Config::YAML, array(
@@ -270,7 +275,14 @@ class HubPlugin extends PluginBase implements Listener{
 			$cmd->setUsage("/auth <ip|help> [args ...]");
 			$cmd->setDescription("Auth-related commands");
 			$cmd->setPermission("legionpe.cmd.auth");
-			$cmd->register($his->getServer()->getCommandMap());
+			$cmd->register($this->getServer()->getCommandMap());
+		}
+		if("chat" === "chat"){
+			$cmd = new PluginCmdExt("chat", $this, Hub::get());
+			$cmd->setUsage("/chat <ch|mute|help>");
+			$cmd->setDescription("Chat-related commands");
+			$cmd->setPermission("legionpe.cmd.chat");
+			$cmd->register($this->getServer()->getCommandMap());
 		}
 	}
 	public function onCommand(CommandSender $issuer, Command $cmd, $label, array $args){ // handle commands

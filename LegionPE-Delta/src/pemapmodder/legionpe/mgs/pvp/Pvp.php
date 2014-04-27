@@ -57,6 +57,7 @@ class Pvp implements CmdExe, Listener{
 	public function onCommand(Issuer $isr, Command $cmd, $label, array $args){
 		switch("$cmd"){
 			case "pvp":
+				$this->equip($isr);
 				break;
 			case "kills":
 				break;
@@ -81,7 +82,7 @@ class Pvp implements CmdExe, Listener{
 		$config->set("kitpvp", $data);
 		$config->save();
 		$p->sendMessage("Your number of deaths is now {$data["deaths"]}!");
-		$event->setMessage(""); // @shoghicp, you must add this!
+		$event->setMessage("");
 	}
 	public function onJoinMg(Player $p){
 		$this->attachments[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.pvp", true);
@@ -122,7 +123,7 @@ class Pvp implements CmdExe, Listener{
 			$event->setCancelled(true);
 	}
 	public function onAttack(Event $event){
-		if(RawLocs::safeArea()->isInside($event->getPlayer())){
+		if(RawLocs::safeArea()->isInside($event->getPlayer()) and !$event->getPlayer()->hasPermission("legionpe.mg.pvp.spawnattack")){
 			$event->setCancelled(true);
 			$event->getPlayer()->sendMessage("You may not attack people here!");
 		}

@@ -12,12 +12,15 @@ use pemapmodder\utils\CallbackPluginTask;
 
 use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\commamd\Command;
+use pocketmine\command\CommandExecutor as CmdExe;
+use pocketmine\command\CommandSender as Issuer;
 use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 
-class Hub implements Listener{
+class Hub implements CmdExe, Listener{
 	public $server;
 	public $teleports = array();
 	protected $channels = array();
@@ -151,6 +154,27 @@ class Hub implements Listener{
 				$event->getPlayer()->sendMessage("Reminder: use /quit next time!");
 				$this->server->dispatchCommand($event->getPlayer(), "quit".substr($event->getMessage(), 1 + 5)); // "/" . "spawn": 1 + 5
 				break;
+		}
+	}
+	public function onCommand(Issuer $isr, Command $cmd, $lbl, array $args){
+		switch($cmd->getName()){
+			case "chat":
+				switch($subcmd = array_shift($args)){
+					case "ch":
+						if(!$isr->hasPermission("legionpe.cmd.chat.ch"))
+							return "You don't have permission to use /chat ch";
+						if(!isset($args[0]))
+							return false;
+						$ch = array_shift($args);
+						if(!in_array($ch, $this->defaultChannels))
+							return "Channel $ch does not exist!";
+						if($this->hasChannelPermission($this->hub->getSession($isr), $ch))
+							$this->setChannel($isr, $ch);
+						elseif($isr->hasPermission("legionpe.cmd.chat.ch.all"))
+							$this->setChannel($isr, $ch);
+						else return "You don't have permission to join this chat channel";
+						return "Your chat channel has been set to \"$ch\"";
+				}
 		}
 	}
 	public static $inst = false;

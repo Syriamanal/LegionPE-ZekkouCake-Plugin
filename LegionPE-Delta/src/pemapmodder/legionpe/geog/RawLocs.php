@@ -51,7 +51,7 @@ abstract class RawLocs{
 		return Lv::get("world_spleef");
 	}
 	public final static function spleefSpawn(){
-		return self::spleef()->getSafeSpawn();
+		return new Position(128, 81, 123, self::spleef());
 	}
 	public final static function parkour(){
 		return Lv::get("world_parkour");
