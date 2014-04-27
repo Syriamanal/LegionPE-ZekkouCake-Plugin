@@ -13,8 +13,13 @@ use pocketmine\tile\Tile;
 class Team implements \ArrayAccess{
 	// static
 	public static $teams = array();
-	public static function get(&$i){
-		$i &= 0b11;
+	public static function get($i){
+		if(is_int($i)) $i &= 0b11;
+		elseif($i instanceof Player) $i = HubPlugin::get()->getDb($i)->get("team");
+		else{
+			trigger_error("Unexpected argument 1 (".print_r($i, true).") passed to ".get_class()."::get($i)", E_USER_ERROR);
+			return;
+		}
 		return self::$teams[$i];
 	}
 	public static function init(){
@@ -59,6 +64,7 @@ class Team implements \ArrayAccess{
 	public function __construct($i){
 		$this->team = $i;
 		$path = \pocketmine\DATA."hub/teams/team-$i.yml";
+		$this->path = $path;
 		if(is_file($path)){
 			$this->config = \yaml_parse(\file_get_contents($path));
 		}
@@ -69,6 +75,9 @@ class Team implements \ArrayAccess{
 			$this->config["members-cnt"] = 10;
 			\file_put_contents($path, \yaml_emit($this->config));
 		}
+	}
+	public function save(){
+		\file_put_contents($this->path, \yaml_emit($this->config));
 	}
 	public function join(Player $p){
 		if(self::canJoin($this->team)){
@@ -95,5 +104,6 @@ class Team implements \ArrayAccess{
 	}
 	public function offsetSet($key, $value){
 		$this->config[$key] = $value;
+		$this->save();
 	}
 }

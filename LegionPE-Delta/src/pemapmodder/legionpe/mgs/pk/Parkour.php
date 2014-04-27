@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\mgs\pk;
 
 use pemapmodder\legionpe\hub\HubPlugin;
+use pemapmodder\legionpe\hub\Team;
 use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe;
@@ -55,8 +56,10 @@ class Parkour implements CmdExe, Listener, MgMain{
 	public function onMove(Event $event){
 		if(($p = $event->getEntity()) instanceof Player){
 			if($p->level->getName() === "world_parkour"){
-				if($p->y <= RawLocs::fallY())
+				if($p->y <= RawLocs::fallY()){
 					$p->teleport(RawLocs::pk()->());
+					Team::get($this->hub->getDb($p)->get("team"))["points"]--; // Am I sure?
+				}
 			}
 		}
 	}
@@ -70,7 +73,9 @@ class Parkour implements CmdExe, Listener, MgMain{
 				$config = HubPlugin::get()->getDb($event->getPlayer());
 				$prefixes = $config->get("prefixes");
 				$original = $prefixes["parkour"];
-				if(($origIndex = array_search($prefixes["parkour"], $this->prefixes)) >= array_search($pfx, $this->prefixes)){
+				$origIndex = array_search($prefixes["parkour"], $this->prefixes);
+				Team::get($event->getPlayer())["points"] += ($origIndex - 1);
+				if($origIndex >= array_search($pfx, $this->prefixes)){
 					$event->getPlayer()->sendMessage("You can't set your prefix to a lower level!\nYou (might have) spent so much effort getting \"".$prefixes["parkour"]."\".\nWhy give it up?");
 					return;
 				}
