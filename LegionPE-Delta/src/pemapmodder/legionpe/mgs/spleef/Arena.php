@@ -12,7 +12,8 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 
 class Arena{
-	public $hub, $id, $centre, $radius, $height, $floors, $gfloor, $pfloor, $pwall, $pceil;
+	public $hub, $id, $centre, $radius, $height, $floors;
+	protected $gfloor, $pfloor, $pwall, $pceil;
 	public $status = 0, $players = array(), $preps = array();
 	public function __construct($id, Position $topCentre, $radius, $height, $floors, $players,
 			Block $floor, Block $pfloor, Block $pwall, Block $pceil){
