@@ -2,12 +2,14 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pemapmodder\legionpe\geog\RawLocs;
+
 use pemapmodder\utils\spaces\CylinderSpace as CS;
 
 use pocketmine\block\Block;
 use pocketmine\level\Position;
 
-class Builder{
+class Builder extends RawLocs{
 	public static function build(Position $centre, $radius, Block $block, $floors, $height, $players, Block $pfloor, Block $wall, Block $ceil){
 		for($i = 0; $i < $floors; $i++){
 			$c = clone $centre;

@@ -102,6 +102,9 @@ class Pvp implements CmdExe, Listener{
 	public function getSpawn(Player $player, $TID){
 		return RawLocs::pvpSpawn();
 	}
+	public function isJoinable(){
+		return true;
+	}
 	public function onRespawn(Event $event){
 		$p = $event->getPlayer();
 		if(@$this->pvpDies[$p->CID] !== true)

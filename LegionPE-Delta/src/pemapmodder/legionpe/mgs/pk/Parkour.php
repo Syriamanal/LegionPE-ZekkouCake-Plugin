@@ -108,6 +108,9 @@ class Parkour implements CmdExe, Listener, MgMain{
 	public function getSpawn(Player $player, $t){
 		return RawLocs::pkSpawn();
 	}
+	public function isJoinable(){
+		return true;
+	}
 	public static $i = false;
 	public static function get(){
 		return self::$i;

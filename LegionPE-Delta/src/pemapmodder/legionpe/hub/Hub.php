@@ -113,15 +113,20 @@ class Hub implements Listener{
 	}
 	protected function joinMg(Player $p, MgMain $mg){
 		$TID = $this->hub->getDb($p)->get("team");
-		$this->server->getScheduler()->scheduleDelayedTask(
-				new CallbackPluginTask(array($p, "teleport"), $this->hub, $mg->getSpawn($p, $TID)), 40);
-		$p->teleport($mg->getSpawn($p, $TID));
-		$p->sendMessage("You are teleported to the");
-		$p->sendMessage("  ".$mg->getName()." world! You might lag!");
-		$this->teleports[$p->CID] = time();
-		$this->hub->sessions[$p->CID] = $mg->getSessionId();
-		$this->setChannel($p, $mg->getDefaultChatChannel($p, $TID));
-		$mg->onJoinMg($p);
+		if(($reason = $mg->isJoinable($p, $TID)) === true){
+			$this->server->getScheduler()->scheduleDelayedTask(
+					new CallbackPluginTask(array($p, "teleport"), $this->hub, $mg->getSpawn($p, $TID)), 40);
+			$p->teleport($mg->getSpawn($p, $TID));
+			$p->sendMessage("You are teleported to the");
+			$p->sendMessage("  ".$mg->getName()." world! You might lag!");
+			$this->teleports[$p->CID] = time();
+			$this->hub->sessions[$p->CID] = $mg->getSessionId();
+			$this->setChannel($p, $mg->getDefaultChatChannel($p, $TID));
+			$mg->onJoinMg($p);
+		}else{
+			$p->sendMessage("{$mg->getName()} cannot be joined currently due to $reason!");
+			$p->teleport(RL::spawn());
+		}
 	}
 	public function setChannel(Player $player, $channel = "legionpe.chat.general"){
 		$this->channels[$player->CID] = $channel;

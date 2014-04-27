@@ -11,4 +11,5 @@ interface MgMain{
 	public function getSessionId();
 	public function getSpawn(Player $player, $TID);
 	public function getDefaultChatChannel(Player $player, $TID);
+	public function isJoinable();
 }
