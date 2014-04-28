@@ -168,13 +168,62 @@ class Hub implements CmdExe, Listener{
 						$ch = array_shift($args);
 						if(!in_array($ch, $this->defaultChannels))
 							return "Channel $ch does not exist!";
-						if($this->hasChannelPermission($this->hub->getSession($isr), $ch))
+						if($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr))
 							$this->setChannel($isr, $ch);
 						elseif($isr->hasPermission("legionpe.cmd.chat.ch.all"))
 							$this->setChannel($isr, $ch);
 						else return "You don't have permission to join this chat channel";
 						return "Your chat channel has been set to \"$ch\"";
 				}
+		}
+	}
+	public function hasChannelPermission($s, &$ch, Issuer $player){
+		if(!($player instanceof Player)){
+			return true;
+		}
+		if(strpos("mandatory", $ch) !== false){
+			return false;
+		}
+		$tid = $this->hub->getDb($player)->get("team")
+		switch($s){
+			case HubPlugin::PVP:
+				$mg = "pvp";
+			case HubPlugin::PK:
+				if(!isset($mg)) $mg = "pk";
+				switch($ch){
+					case "$mg.public":
+					case "legionpe.chat.$mg.public":
+					case "chat.$mg.public":
+						$ch = "legionpe.chat.$mg.public";
+						return true;
+					case "$mg.team":
+					case "chat.$mg.team":
+					case "legionpe.chat.$mg.team":
+					case "leginope.chat.$mg.team.$tid":
+						$ch = "legionpe.chat.$mg.$tid";
+						return true;
+				}
+			case HubPlugin::HUB:
+				switch($ch){
+					case "general":
+					case "chat.general":
+					case "legionpe.chat.general":
+						$ch = "legionpe.chat.general";
+						return true;
+					case "mute":
+					case "chat.mute":
+					case  "legionpe.chat.mute":
+						$ch = "legionpe.chat.mute";
+						return true;
+					case "team":
+					case "chat.team":
+					case "legionpe.chat.team":
+					case "legionpe.chat.team.$tid":
+						$ch = "legionpe.chat.team.$tid";
+						return true;
+				}
+			default:
+				return false;
 		}
 	}
 	public static $inst = false;

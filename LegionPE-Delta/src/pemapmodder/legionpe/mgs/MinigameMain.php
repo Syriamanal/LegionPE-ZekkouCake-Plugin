@@ -9,7 +9,16 @@ interface MgMain{
 	public function onQuitMg(Player $player);
 	public function getName();
 	public function getSessionId();
+	/**
+	 * @return pocketmine\level\Position
+	 */
 	public function getSpawn(Player $player, $TID);
+	/**
+	 * @return string
+	 */
 	public function getDefaultChatChannel(Player $player, $TID);
+	/**
+	 * @return bool
+	 */
 	public function isJoinable();
 }
