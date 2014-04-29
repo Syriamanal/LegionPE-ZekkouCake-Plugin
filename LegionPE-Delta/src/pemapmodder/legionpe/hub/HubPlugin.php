@@ -92,7 +92,7 @@ class HubPlugin extends PluginBase implements Listener{
 		DP::registerPermission(new Permission("legionpe.cmd.chat.mute", "Allowing using subcommand /chat mute", Permission::DEFAULT_TRUE), $chat);
 	}
 	protected function initConfig(){
-			$this->config = new Config($this->getServer()->getDataPath()."general-config.yml", Config::YAML, array(
+			$this->config = new Config($this->getServer()->getDataPath()."general-config.json", Config::JSON, array(
 				"kitpvp"=>array(
 					"prefixes"=>array(
 						"fighter"		=>25,

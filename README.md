@@ -1,5 +1,6 @@
 LegionPE ZekkouCake Plugin
 ===
+This repo includes the core utils and commands, auth, portals, 4 minigames (KitPvP, parkour, spleef and CTF), chat channels and prefixes, ranks api and teams api
 
 # Tasks
 
