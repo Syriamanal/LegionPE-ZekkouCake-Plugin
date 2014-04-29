@@ -44,10 +44,10 @@ LegionPE ZekkouCake Plugin
 * CTF plugin
  * later... where is the world? Hello @SpyDuck?
 * Minigame inheritance
+* More core commands
+ * /chat, /mute and /unmute - chat channels
 
 ## Tasks TODO
-* More core commands
- * What exactly are they? #_#
 * @_@ not debugging... but debugging of course...
 
 ## Tasks low-priority/optional TODO
@@ -102,12 +102,14 @@ Chat channels:
  * legionpe.chat.mute
   * legionpe.chat.mute.{CID}
  * legionpe.chat.team.{TID}
- * legionpe.chat.pvp
- * legionpe.chat.pk
+ * legionpe.chat.pvp.public
+ * legionpe.chat.pvp.{TID}
+ * legionpe.chat.pk.public
+ * legionpe.chat.pk.{TID}
  * legionpe.chat.ctf.public
  * legionpe.chat.ctf.{TID}
  * legionpe.chat.spleef.public
- * legionpe.chat.spleef.{SID}
+ * legionpe.chat.spleef.[{SID}].[{TID}]
 
 # Appendix:
 * IDS

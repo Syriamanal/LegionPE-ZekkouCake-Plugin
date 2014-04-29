@@ -75,7 +75,7 @@ class HubPlugin extends PluginBase implements Listener{
 		Spleef::init();
 		CTF::init();
 	}
-	protected function initPerms(){
+	protected function initPerms(){ // initialize core permissions
 		$root = DP::registerPermission(new Permission("legionpe", "Allow using all LegionPE commands and utilities"));
 		// minigames
 		$mgs = DP::registerPermission(new Permission("legionpe.mg", "Allow doing actions in minigames"), $root);

@@ -21,4 +21,9 @@ interface MgMain{
 	 * @return bool
 	 */
 	public function isJoinable();
+	public static function init();
+	/**
+	 * @return self
+	 */
+	public static function get();
 }

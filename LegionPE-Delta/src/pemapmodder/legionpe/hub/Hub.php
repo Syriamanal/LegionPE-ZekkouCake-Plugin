@@ -6,6 +6,8 @@ use pemapmodder\legionpe\geog\RawLocs as RL;
 use pemapmodder\legionpe\hub\Team;
 use pemapmodder\legionpe\mgs\MgMain;
 use pemapmodder\legionpe\mgs\pvp\Pvp;
+use pemapmodder\legionpe\mgs\pk\Parkour as Parkour;
+use pemapmodder\legionpe\mgs\spleef\Main as Spleef;
 
 use pemapmodder\utils\CallbackEventExe;
 use pemapmodder\utils\CallbackPluginTask;
@@ -157,25 +159,54 @@ class Hub implements CmdExe, Listener{
 		}
 	}
 	public function onCommand(Issuer $isr, Command $cmd, $lbl, array $args){
+		$output = "";
 		switch($cmd->getName()){
+			case "mute":
+			case "unmute":
+				array_unshift($args, $cmd->getName());
 			case "chat":
 				switch($subcmd = array_shift($args)){
+					case "mute":
+					case "unmute":
+						array_unshift($args, $subcmd);
 					case "ch":
 						if(!$isr->hasPermission("legionpe.cmd.chat.ch"))
 							return "You don't have permission to use /chat ch";
-						if(!isset($args[0]))
-							return false;
-						$ch = array_shift($args);
-						if(!in_array($ch, $this->defaultChannels))
-							return "Channel $ch does not exist!";
-						if($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr))
-							$this->setChannel($isr, $ch);
-						elseif($isr->hasPermission("legionpe.cmd.chat.ch.all"))
-							$this->setChannel($isr, $ch);
-						else return "You don't have permission to join this chat channel";
-						return "Your chat channel has been set to \"$ch\"";
+						if(isset($args[0])){
+							$ch = array_shift($args);
+							if($isr->hasPermission("legionpe.cmd.chat.ch.all")){
+								if($this->proofreadChannelName($ch))
+									return "Typo detected in \"$ch\".";
+								$this->setChannel($isr, $ch); // absolute channel
+							}
+							elseif($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr)){
+								$this->setChannel($isr, $ch);
+							}
+							else return "You don't have permission to create/join this chat channel";
+							return "Your chat channel has been set to \"$ch\"";
+						}
 				}
+			case "help":
+				$output = "Showing help of /chat, /mute and /unmute:\n";
+			default:
+				$output .= "/unmute: Equal to /chat unmute";
+				$output .= "/mute: Equal to /chat mute";
+				$output .= "/chat mute: Equal to \"/chat ch m\" or \"/chat ch mute\"";
+				$output .= "/chat ch <channel> Join a chat channel"
 		}
+	}
+	public function proofreadChannelName(&$ch){ // check if typo exists; not very safe, but at least a safeguard exists
+		$ch = strtolower($ch);
+		$tokens = explode(".", $ch);
+		if($tokens[0] !== "legionpe" or $tokens[1] !== "chat")
+			return true;
+		while(count($tokens) > 0){
+			$token = array_shift($tokens);
+			if(!in_array($token, array("legionpe", "pvp", "pk", "spleef", "ctf", "general", "chat", "public", "mute", "team")) and !is_numeric($token)){
+				return true;
+			}
+		}
+		return false;
 	}
 	public function hasChannelPermission($s, &$ch, Issuer $player){
 		if(!($player instanceof Player)){
@@ -184,47 +215,97 @@ class Hub implements CmdExe, Listener{
 		if(strpos("mandatory", $ch) !== false){
 			return false;
 		}
-		$tid = $this->hub->getDb($player)->get("team")
-		switch($s){
-			case HubPlugin::PVP:
-				$mg = "pvp";
-			case HubPlugin::PK:
-				if(!isset($mg)) $mg = "pk";
-				switch($ch){
-					case "$mg.public":
-					case "legionpe.chat.$mg.public":
-					case "chat.$mg.public":
-						$ch = "legionpe.chat.$mg.public";
-						return true;
-					case "$mg.team":
-					case "chat.$mg.team":
-					case "legionpe.chat.$mg.team":
-					case "leginope.chat.$mg.team.$tid":
-						$ch = "legionpe.chat.$mg.$tid";
-						return true;
-				}
-			case HubPlugin::HUB:
-				switch($ch){
-					case "general":
-					case "chat.general":
-					case "legionpe.chat.general":
+		$tid = $this->hub->getDb($player)->get("team");
+		switch($ch){
+			case "p":
+			case "public":
+				switch($s){
+					case HubPlugin::HUB:
 						$ch = "legionpe.chat.general";
 						return true;
-					case "mute":
-					case "chat.mute":
-					case  "legionpe.chat.mute":
-						$ch = "legionpe.chat.mute";
+					case HubPlugin::PVP:
+						$ch = "leginope.chat.pvp.public";
 						return true;
-					case "team":
-					case "chat.team":
-					case "legionpe.chat.team":
-					case "legionpe.chat.team.$tid":
+					case HubPlugin::PK:
+						$ch = "legionpe.chat.pk.public";
+						return true;
+					case HubPlugin::SPLEEF:
+						$ch = "legionpe.chat.spleef.public";
+						return true;
+					case HubPlugin::CTF:
+						$ch = "legionpe.chat.ctf.public";
+						return true;
+					default:
+						return false;
+				}
+			case "u":
+			case "unmute":
+				$ch = $this->getDefaultChannel($player);
+				return true;
+			case "m":
+			case "mute":
+				$ch = "legionpe.chat.mute.".$player->CID;
+				return true;
+			case "t":
+			case "team":
+				switch($s){
+					case HubPlugin::HUB:
 						$ch = "legionpe.chat.team.$tid";
 						return true;
+					case HubPlugin::PVP:
+						$ch = "leginope.chat.pvp.$tid";
+						return true;
+					case HubPlugin::PK:
+						$ch = "legionpe.chat.pk.$tid";
+						return true;
+					case HubPlugin::SPLEEF:
+						$ch = "leginope.chat.spleef.$tid";
+						return true;
+					case HubPlugin::CTF:
+						$ch = "legionpe.chat.ctf.$tid";
+						return true;
+					default:
+						return false;
 				}
+			case "s":
+				$nt = true;
+			case "st":
+				if($s === HubPlugin::SPLEEF and ($sid = Spleef::getSession($player)) !== false){
+					$ch = "legionpe.chat.spleef.$sid";
+					if(!isset($nt))
+						$ch .= ".$tid";
+					return true;
+				}
+				return false;
+			case "g":
+			case "gen":
+			case "general":
+				$ch = "legionpe.chat.general";
+				return true;
 			default:
 				return false;
 		}
+	}
+	protected function getDefaultChannel(Player $player){
+		$t = $this->hub->getDb($player)->get("team");
+		switch($this->hub->getSession($player)){
+			case HubPlugin::HUB:
+				return "legionpe.chat.general";
+			case HubPlugin::PVP:
+				$c = "pvp\\Pvp";
+				break;
+			case HubPlugin::PK:
+				$c = "pk\\Parkour";
+				break;
+			case HubPlugin::SPLEEF:
+				$c = "spleef\\Main";
+			case HubPlugin::CTF:
+				$c = "ctf\\Main";
+			default:
+				return "legionpe.chat.mute.".$player->CID;
+		}
+		$c = "pemapmodder\\legionpe\\mgs\\$c";
+		return $c::get()->getDefaultChatChannel($player, $t);
 	}
 	public static $inst = false;
 	public static function init(){

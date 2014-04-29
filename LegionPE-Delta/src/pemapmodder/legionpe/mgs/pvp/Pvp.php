@@ -138,6 +138,7 @@ class Pvp implements CmdExe, Listener{
 		$db->set("kitpvp", $data);
 		$db->save();
 		$killer->sendMessage("Your number of kills is now {$data["kills"]}!");
+		$killer->heal($data["kills"] > 1000 ? 4:2);
 		$this->updatePrefix($killer, $data["kills"]);
 	}
 	protected function updatePrefix(Player $killer, $kills){
