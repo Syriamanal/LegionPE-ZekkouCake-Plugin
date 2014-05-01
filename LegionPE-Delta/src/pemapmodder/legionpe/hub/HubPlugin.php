@@ -35,7 +35,7 @@ class HubPlugin extends PluginBase implements Listener{
 	const PK		= 0b01010; // Parkour
 	const SPLEEF	= 0b01101; // Touch-Spleef
 	const CTF		= 0b01110; // Capture The Flag
-	// const BG		= 0b01111; // build and guess
+	// const BG		= 0b01111; // Build and Guess
 	const ON		= 0b10111;
 	const LOGIN		= 0b11000;
 	const LOGIN_MAX	= 0b11111;

@@ -2,6 +2,7 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe;
@@ -16,7 +17,9 @@ use pocketmine\event\Listener;
 class Main implements Listener, MgMain{
 	public $arenas = array();
 	public $sessions = array();
+	protected $atchmts = array();
 	public function __construct(){
+		$this->hub = HubPlugin::get();
 		// TODO initialize arenas with raw coords data
 		// E.g.:
 		/*
@@ -41,6 +44,17 @@ class Main implements Listener, MgMain{
 	public function onInteract(Event $evt){
 		if(($sid = $this->sessions[$evt->getPlayer()->CID]) !== -1)
 			$this->arenas[$sid]->onInteract($evt);
+		else{
+			for($i = 1; $i <= 4; $i++){
+				if(Builder::signs($i)->isInside($evt->getBlock())){
+					$this->arenas[$i]->join($evt->getPlayer());
+				}
+			}
+		}
+	}
+	public function onJoinMg(Player $p){
+		$this->sessions[$p->CID] = -1;
+		$this->atchmts[$p->CID] = $p->addAttachment($this->hub, "legionpe.cmd.mg.spleef", true);
 	}
 	public function onQuitMg(Player $p){
 		if(!isset($this->sessions[$p->CID])) return;
@@ -48,9 +62,8 @@ class Main implements Listener, MgMain{
 			$this->arenas[$sid]->quit($event->getPlayer(), "logout");
 		}
 		unset($this->sessions[$p->CID]);
-	}
-	public function onJoinMg(Player $p){
-		$this->sessions[$p->CID] = -1;
+		$p->removeAttachment($this->atchmts[$p->CID]);
+		unset($this->atchmts[$p->CID]);
 	}
 	public function isJoinable(){
 		return true;

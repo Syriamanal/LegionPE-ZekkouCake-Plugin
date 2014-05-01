@@ -42,9 +42,15 @@ class Builder extends RawLocs{
 		$pos->level->setBlock($pos, $block, false, false, true);
 	}
 	public final static function signs($sid){
-		switch($sid){
+		switch($sid & 0b11){
 			case 1:
 				return new Space(new Vector3(147, 82, 121), new Vector3(147, 82, 125), parent::spleef());
+			case 2:
+				return new Space(new Vector3(130, 82, 142), new Vector3(126, 82, 142), parent::spleef());
+			case 3:
+				return new Space(new Vector3(109, 82, 125), new Vector3(109, 82, 121), parent::spleef());
+			case 4 & 0b11:
+				return new Space(new Vector3(130, 82, 104), new Vector3(126, 82, 104), parent::spleef());
 		}
 	}
 }

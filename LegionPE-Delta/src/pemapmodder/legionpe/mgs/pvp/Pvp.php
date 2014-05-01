@@ -73,6 +73,8 @@ class Pvp implements CmdExe, Listener{
 				$output .= "Your deaths: ".$data["deaths"]."\n";
 				$output .= "Ratio: ".round($data["kills"]/$data["deaths"], 3);
 				return $output;
+			case "class":
+				
 		}
 	}
 	public function onDeath(Event $event){

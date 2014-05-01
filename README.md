@@ -24,14 +24,15 @@ This repo includes the core utils and commands, auth, portals, 4 minigames (KitP
 * Raw map coordinates importing (semi-hardcoded)
 * Parkour plugin
  * /stats
-* PvP plugin
- * /kills [top]
- * /pvp
 * Prefix
 * Amai Beetroot data conversion
  * PvP items ans armor config conversion aborted and will not be done
 
 ## Tasks in progress
+* PvP plugin
+ * /kills [top]
+ * /pvp
+ * /class
 * Permissions
 * More core utils
  * What exactly are they? #_#
@@ -71,6 +72,7 @@ This repo includes the core utils and commands, auth, portals, 4 minigames (KitP
 
 * Syntax errors
 * Multiplayer bugs
+ * Chat channels ***
 * Typos
 
 ## Done
