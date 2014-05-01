@@ -12,7 +12,7 @@ use pocketmine\level\Position;
 class Builder extends RawLocs{
 	public static function build(Position $centre, $radius, Block $block, $floors, $height, $players, Block $pfloor, Block $wall, Block $ceil){
 		for($i = 0; $i < $floors; $i++){
-			$c = clone $centre;
+			$c = $centre;
 			$cs = new CS(CS::Y, $c->subtract(0, $height * $i), $radius, 1);
 			$cs->setBlocks($block);
 		}
@@ -24,7 +24,7 @@ class Builder extends RawLocs{
 		// TODO hollow circular wall; maybe just hand-make it?
 	}
 	public static function buildPrep(Position $pos, Block $floor, Block $wall, Block $ceil, $height){
-		$c = clone $pos;
+		$c = $pos;
 		self::sb($c->add(0, -1), $floor);
 		for($i = 0; $i <= $height; $i++){
 			self::sb($c->add(1, $i, 1), $wall);
