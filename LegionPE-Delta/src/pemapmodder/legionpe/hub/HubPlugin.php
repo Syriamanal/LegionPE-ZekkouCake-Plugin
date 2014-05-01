@@ -102,7 +102,7 @@ class HubPlugin extends PluginBase implements Listener{
 						"beast"			=>375,
 						"elite"			=>525,
 						"warrior"		=>675,
-						"knight"		=>875,
+						"knight"		=>87,
 						"addict"		=>1100,
 						"unstoppable"	=>1350,
 						"pro"			=>1625,
@@ -112,102 +112,17 @@ class HubPlugin extends PluginBase implements Listener{
 						"god"			=>2975,
 					),
 					"auto-equip"=>array(
-						"player"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
+						"fighter"=>array(
+							"inv"=>array(
+								array(267, 0, 1),
+								array(360, 0, 32)
 							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
+							"arm"=>array(306, 299, 300, 309)
 						),
-						"donater"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"vip"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"vip-plus"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"vip-plus-plus"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"premium"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"sponsor"=>array(
-							"inventory"=>array(
-								array(360, 0, 1),
-								array(272, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>306,
-								"c"=>299,
-								"l"=>300,
-								"b"=>301
-							),
-						),
-						"staff"=>array(
-							"inventory"=>array(
-								array(364, 0, 1),
-								array(276, 0, 1),
-							),
-							"armor"=>array(
-								"h"=>310,
-								"c"=>299,
-								"l"=>300,
-								"b"=>313
-							),
-						),
+					),
+					"classes"=>array(
+						"player"=>array("fighter", "healer"),
+						"donater"=>array("fighter", "healer", "blahblah")
 					),
 					"top-kills"=>array(
 						"Avery Black"=>4,
@@ -529,7 +444,7 @@ class HubPlugin extends PluginBase implements Listener{
 				"parkour"=>"",
 				"kitpvp-rank"=>"",
 				"rank"=>"",
-			"kitpvp"=>array("kills"=>0, "deaths"=>0),
+			"kitpvp"=>array("kills"=>0, "deaths"=>0, "class"=>"fighter"),
 			"parkour"=>array(),
 			"spleef"=>array("wins"=>0, "unwonws"=>0),
 			"ctf"=>array(),

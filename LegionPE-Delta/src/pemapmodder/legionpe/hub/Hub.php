@@ -175,8 +175,13 @@ class Hub implements CmdExe, Listener{
 						if(isset($args[0])){
 							$ch = array_shift($args);
 							if($isr->hasPermission("legionpe.cmd.chat.ch.all")){
-								if($this->proofreadChannelName($ch))
+								$copy = $ch;
+								if($this->proofreadChannelName($ch)){
+									if($copy !== "mute" and $copy !== "m")
+										$this->hub->getDb($isr)->set("mute", false);
+									$this->hub->getDb($isr)->save();
 									return "Typo detected in \"$ch\".";
+								}
 								$this->setChannel($isr, $ch); // absolute channel
 							}
 							elseif($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr)){
@@ -244,6 +249,7 @@ class Hub implements CmdExe, Listener{
 				return true;
 			case "m":
 			case "mute":
+				$this->hub->getDb($player)->set("mute", true);
 				$ch = "legionpe.chat.mute.".$player->CID;
 				return true;
 			case "t":

@@ -30,7 +30,8 @@ class Pvp implements CmdExe, Listener{
 		// permissions
 		// cmd perms
 		$mgs = $this->server->getPluginManager()->getPermission("legionpe.cmd.mg");
-		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using PvP minigame commands", Perm::DEFAULT_FALSE), $mgs);
+		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using KitPvP minigame commands", Perm::DEFAULT_FALSE), $mgs);
+		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.class", "Allow using commamd to choose self class in KitPvP"), $mg);
 		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame"), $mg); // DEFAULT_FALSE because minigame-only
 		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame"), $mg);
 		// actions perms
@@ -52,15 +53,26 @@ class Pvp implements CmdExe, Listener{
 		$cmd = new Cmd("kills", $this->hub, $this);
 		$cmd->setDescription("View your kills or top kills");
 		$cmd->setUsage("/kills [top]");
+		$cmd->setPermission("legionpe.cmd.mg.pvp.kills");
+		$cmd->register($this->server->getCommandMap());
+		$cmd = new Cmd("class", $this->hub, $this);
+		$cmd->setUsage("/class <class>");
+		$cmd->setDescription("Choose a KitPvP class");
+		$cmd->setPermission("legionpe.cmd.mg.pvp.class");
 		$cmd->register($this->server->getCommandMap());
 	}
 	public function onCommand(Issuer $isr, Command $cmd, $label, array $args){
+		if(!($isr instanceof Player)) return "Please run this commamd in-game.";
 		switch("$cmd"){
 			case "pvp":
 				$this->equip($isr);
-				break;
+				return "PvP kit given!";
 			case "kills":
-				break;
+				$data = $this->hub->getDb($isr)->get("kitpvp");
+				$output = "Your kills: ".$data["kills"]."\n";
+				$output .= "Your deaths: ".$data["deaths"]."\n";
+				$output .= "Ratio: ".round($data["kills"]/$data["deaths"], 3);
+				return $output;
 		}
 	}
 	public function onDeath(Event $event){
@@ -177,12 +189,12 @@ class Pvp implements CmdExe, Listener{
 		$this->hub->getDb($killer)->save();
 	}
 	public function equip(Player $player){
-		$rk = $this->hub->getRank($player);
+		$rk = $this->hub->getDb($player)->get("kitpvp")["class"]
 		$data = $this->hub->config->get("kitpvp")["auto-equip"][$rk];
-		foreach($data["inventory"] as $slot=>$item){
+		foreach($data["inv"] as $slot=>$item){
 			$player->setSlot($slot, Item::get($item[0], $item[1], $item[2]));
 		}
-		foreach($data["armor"] as $slot=>$armor){
+		foreach($data["arm"] as $slot=>$armor){
 			$player->setArmorSlot(array("h"=>0, "c"=>1, "l"=>2, "b"=>3)[$slot], Item::get($armor));
 		}
 	}
