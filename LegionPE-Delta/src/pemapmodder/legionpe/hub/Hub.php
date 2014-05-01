@@ -107,7 +107,7 @@ class Hub implements CmdExe, Listener{
 		$p = $evt->getEntity();
 		if(!($p instanceof Player))
 			return;
-		if(time() - @$this->teleports[$p->CID] <= 3)
+		if(time() - ((int)@$this->teleports[$p->CID]) <= 3)
 			return;
 		if(RL::enterPvpPor()->isInside($p)){
 			$this->joinMg($p, Pvp::get());
@@ -136,6 +136,7 @@ class Hub implements CmdExe, Listener{
 	}
 	public function setChannel(Player $player, $channel = "legionpe.chat.general"){
 		$this->channels[$player->CID] = $channel;
+		$this->hub->getDb($player)->get($player)->set("last-channel", $channel);
 	}
 	public function getChannel(Player $player){
 		return $this->channels[$player->CID];
@@ -246,7 +247,8 @@ class Hub implements CmdExe, Listener{
 				}
 			case "u":
 			case "unmute":
-				$ch = $this->getDefaultChannel($player);
+				# $ch = $this->getDefaultChannel($player);
+				$ch = $this->hub->getDb($player)->get("last-channel");
 				return true;
 			case "m":
 			case "mute":

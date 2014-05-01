@@ -401,7 +401,7 @@ class HubPlugin extends PluginBase implements Listener{
 		$p->sendChat("Please select a team.\nSome teams are unselectable because they are too full.\nIf you insist to join those teams, come back later.");
 	}
 	public function onAuthPlayer(Player $p){ // set session to self::HUB, tp to spawn, ensure tp, call PlayerAuthEvent
-		Hub::get()->setChannel($p, "legionpe.chat.general");
+		Hub::get()->setChannel($p, "legionpe.chat.general"); // luckily I remembered this :D
 		$this->sessions[$p->CID] = self::HUB;
 		$p->sendChat("You have successfully logged in into LegionPE!");
 		$s = Loc::spawn();
