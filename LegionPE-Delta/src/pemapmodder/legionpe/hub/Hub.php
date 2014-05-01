@@ -126,7 +126,8 @@ class Hub implements CmdExe, Listener{
 			$p->sendMessage("  ".$mg->getName()." world! You might lag!");
 			$this->teleports[$p->CID] = time();
 			$this->hub->sessions[$p->CID] = $mg->getSessionId();
-			$this->setChannel($p, $mg->getDefaultChatChannel($p, $TID));
+			if(!$this->hub->getDb($p)->get("mute"))
+				$this->setChannel($p, $mg->getDefaultChatChannel($p, $TID));
 			$mg->onJoinMg($p);
 		}else{
 			$p->sendMessage("{$mg->getName()} cannot be joined currently due to $reason!");
@@ -148,7 +149,7 @@ class Hub implements CmdExe, Listener{
 				$event->setCancelled(true);
 				foreach(Player::getAll() as $player){
 					if($this->getChannel($player) === $this->getChannel($p) or $this->getChannel($p) === "legionpe.chat.mandatory")
-						$player->sendMessage("* {$this->getPrefixes($player)}{$player->getDisplayName()} ".implode(" ", $cmd));
+						$player->sendMessage("★ {$this->getPrefixes($player)}{$player->getDisplayName()} ".implode(" ", $cmd));
 				}
 				break;
 			case "spawn":
