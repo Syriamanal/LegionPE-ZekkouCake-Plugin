@@ -4,6 +4,7 @@ namespace pemapmodder\legionpe\mgs\spleef;
 
 use pemapmodder\legionpe\geog\RawLocs;
 
+use pemapmodder\utils\spaces\CuboidSpace as Space;
 use pemapmodder\utils\spaces\CylinderSpace as CS;
 
 use pocketmine\block\Block;

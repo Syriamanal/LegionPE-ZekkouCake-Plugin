@@ -47,10 +47,22 @@ class Main implements Listener, MgMain{
 		else{
 			for($i = 1; $i <= 4; $i++){
 				if(Builder::signs($i)->isInside($evt->getBlock())){
-					$this->arenas[$i]->join($evt->getPlayer());
+					$this->join($i, $evt->getPlayer());
+					break;
 				}
 			}
 		}
+	}
+	public function join($SID, Player $player){
+		if($this->arenas[$SID]->isJoinable()){
+			$this->arenas[$SID]->join($player);
+		}
+		else{
+			$player->sendMessage("The match has started / waiting to start! You can't join!");
+		}
+	}
+	public function getChance(Player $player){
+		return $this->hub->config->get("spleef")["chances"][$this->hub->getRank($player)];
 	}
 	public function onJoinMg(Player $p){
 		$this->sessions[$p->CID] = -1;
