@@ -29,6 +29,10 @@ use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class HubPlugin extends PluginBase implements Listener{
+	const CURRENT_VERSION = 0;
+
+	const V_INITIAL = 0;
+
 	const REGISTER	= 0b00010;
 	const HUB		= 0b01000; // I consider hub as a NOBLE minigame
 	const PVP		= 0b01001; // KitPvP
@@ -39,6 +43,7 @@ class HubPlugin extends PluginBase implements Listener{
 	const ON		= 0b10111;
 	const LOGIN		= 0b11000;
 	const LOGIN_MAX	= 0b11111;
+
 	public $sessions = array();
 	protected $tmpPws = array();
 	public $dbs = array();
@@ -102,7 +107,7 @@ class HubPlugin extends PluginBase implements Listener{
 			$pfxs[$pfx] = $last;
 		}
 		$this->config = new Config($this->getServer()->getDataPath()."Hub/general-config.json", Config::JSON, array(
-			"config-version-never-edit-this"=>0,
+			"config-version-never-edit-this"=>self:: CURRENT_VERSION,
 			"kitpvp"=>array(
 				"prefixes"=>$pfxs,
 				"auto-equip"=>array(
@@ -430,6 +435,7 @@ class HubPlugin extends PluginBase implements Listener{
 	protected function openDb($p){ // open and initialize the database of a player
 		@mkdir($path = $this->playerPath.substr(strtolower($p->getName()), 0, 1)."/");
 		$config = new Config($path.strtolower($p->getName()), Config::YAML, array(
+	 	 	"config-version-never-edit-this" => self:: CURRENT_VERSION,
 			"pw-hash" => false, // I don't care whether they are first time or not, just care they registered or not
 			"ip-auth" => false,
 			"prefixes" => array(
