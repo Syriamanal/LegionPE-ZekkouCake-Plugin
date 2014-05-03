@@ -27,39 +27,50 @@ class Pvp implements CmdExe, Listener{
 	public function __construct(){
 		$this->server = Server::getInstance();
 		$this->hub = HubPlugin::get();
-		// permissions
-		// cmd perms
-		$mgs = $this->server->getPluginManager()->getPermission("legionpe.cmd.mg");
-		$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using KitPvP minigame commands", Perm::DEFAULT_FALSE), $mgs);
-		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.class", "Allow using commamd to choose self class in KitPvP"), $mg);
-		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame"), $mg); // DEFAULT_FALSE because minigame-only
-		DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame"), $mg);
-		// actions perms
-		$mgs = $this->server->getPluginManager()->getPermission("legionpe.mg");
-		$mg = DP::registerPermission(new Perm("legionpe.mg.pvp", "Allow doing some actions in PvP minigame"), $mgs);
-		DP::registerPermission(new Perm("legionpe.mg.pvp.spawnattack", "Allow attacking at spawn platform", Perm::DEFAULT_OP), $mg);
-		// event handlers
+	}
+	protected function regPerms(){
+		if("cmd" === "cmd"){
+			$mgs = $this->server->getPluginManager()->getPermission("legionpe.cmd.mg");
+			$mg = DP::registerPermission(new Perm("legionpe.cmd.mg.pvp", "Allow using KitPvP minigame commands", Perm::DEFAULT_FALSE), $mgs);
+			DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.class", "Allow using commamd to choose self class in KitPvP"), $mg);
+			DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.pvp", "Allow using command /pvp in KitPvP minigame"), $mg); // DEFAULT_FALSE because minigame-only
+			DP::registerPermission(new Perm("legionpe.cmd.mg.pvp.kills", "Allow using command /kills in KitPvP minigame"), $mg);
+		}
+		if("action" === "action"){
+			$mgs = $this->server->getPluginManager()->getPermission("legionpe.mg");
+			$mg = DP::registerPermission(new Perm("legionpe.mg.pvp", "Allow doing some actions in PvP minigame"), $mgs);
+			DP::registerPermission(new Perm("legionpe.mg.pvp.spawnattack", "Allow attacking at spawn platform", Perm::DEFAULT_OP), $mg);
+		}
+	}
+	protected function regEvts(){
 		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
 		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
 		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
 		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
-		// commands
-		$cmd = new Cmd("pvp", $this->hub, $this);
-		$cmd->setDescription("Get the PvP kit!");
-		$cmd->setUsage("/pvp");
-		$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
-		$cmd->setAliases(array("kit"));
-		$cmd->register($this->server->getCommandMap());
-		$cmd = new Cmd("kills", $this->hub, $this);
-		$cmd->setDescription("View your kills or top kills");
-		$cmd->setUsage("/kills [top]");
-		$cmd->setPermission("legionpe.cmd.mg.pvp.kills");
-		$cmd->register($this->server->getCommandMap());
-		$cmd = new Cmd("class", $this->hub, $this);
-		$cmd->setUsage("/class <class>");
-		$cmd->setDescription("Choose a KitPvP class");
-		$cmd->setPermission("legionpe.cmd.mg.pvp.class");
-		$cmd->register($this->server->getCommandMap());
+	}
+	protected function initCmds(){
+		if("pvp" === "pvp"){
+			$cmd = new Cmd("pvp", $this->hub, $this);
+			$cmd->setDescription("Get the PvP kit!");
+			$cmd->setUsage("/pvp");
+			$cmd->setPermission("legionpe.cmd.mg.pvp.pvp");
+			$cmd->setAliases(array("kit"));
+			$cmd->register($this->server->getCommandMap());
+		}
+		if("kills" === "kills"){
+			$cmd = new Cmd("kills", $this->hub, $this);
+			$cmd->setDescription("View your kills or top kills");
+			$cmd->setUsage("/kills [top]");
+			$cmd->setPermission("legionpe.cmd.mg.pvp.kills");
+			$cmd->register($this->server->getCommandMap());
+		}
+		if("class" === "class"){
+			$cmd = new Cmd("class", $this->hub, $this);
+			$cmd->setUsage("/class <class>");
+			$cmd->setDescription("Choose a KitPvP class");
+			$cmd->setPermission("legionpe.cmd.mg.pvp.class");
+			$cmd->register($this->server->getCommandMap());
+		}
 	}
 	public function onCommand(Issuer $isr, Command $cmd, $label, array $args){
 		if(!($isr instanceof Player)) return "Please run this commamd in-game.";

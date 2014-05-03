@@ -88,10 +88,10 @@ class Main implements Listener, MgMain{
 	public function getSessionId(){
 		return HubPlugin::SPLEEF;
 	}
-	public function getSpawn(){
+	public function getSpawn(Player $player, $TID){
 		return Builder::spawn();
 	}
-	public function getDefaultChatChannel(){
+	public function getDefaultChatChannel(Player $player, $TID){
 		return "legionpe.chat.spleef.public";
 	}
 	public function isJoinable(){

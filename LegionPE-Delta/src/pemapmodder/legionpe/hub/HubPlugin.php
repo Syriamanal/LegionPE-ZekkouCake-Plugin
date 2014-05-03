@@ -20,6 +20,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\command\RemoteConsoleCommandSender as RCon;
 use pocketmine\event\Event;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\level\Level;
 use pocketmine\permission\DefaultPermissions as DP;
@@ -65,12 +66,13 @@ class HubPlugin extends PluginBase implements Listener{
 		$this->registerHandles();
 		$this->initCmds();
 		$this->initRanks();
-		console(TextFormat::GREEN."Done!");
+		echo TextFormat::toANSI(TextFormat::GREEN."Done!").PHP_EOL;
 	}
 	public function onDisable(){
 		console(TextFormat::AQUA."Finalizing Hub... ", false);
 		$this->config->save();
-		console(TextFormat::GREEN."Done!");
+		echo TextFormat::toANSI(TextFormat::GREEN."Done!");
+		echo PHP_EOL;
 	}
 	protected function initObjects(){ // initialize objects: Team, Hub, other minigames
 		Hub::init();
@@ -489,9 +491,6 @@ class HubPlugin extends PluginBase implements Listener{
 	public function getSession(Player $p){
 		return $this->sessions[$p->CID];
 	}
-	// public function setSession(Player $p){
-		// return $this->sessions[$p->CID];
-	// }
 	public static $instance = false;
 	public static function get(){ // get instance
 		return self::$instance;

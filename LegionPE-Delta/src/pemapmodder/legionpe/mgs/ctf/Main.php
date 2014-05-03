@@ -3,6 +3,7 @@
 namespace pemapmodder\legionpe\mgs\ctf;
 
 use pemapmodder\legionpe\hub\HubPlugin;
+use pemapmodder\legionpe\mgs\MgMain;
 
 use pemapmodder\utils\CallbackEventExe as EvtExe;
 use pemapmodder\utils\FileUtils;
@@ -11,6 +12,7 @@ use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
+use pocketmine\level\Level;
 
 class Main implements MgMain, Listener{
 	public $status = 0;
@@ -21,16 +23,19 @@ class Main implements MgMain, Listener{
 		$this->initialize();
 	}
 	protected function initialize(){
-		FileUtils::copy(RawLocs::basePath(), RawLocs::worldPath());
-		$this->current = new Game(Level::get(RawLocs::lvName()));
-		$this->server->registerEvent("pocketmine\\event\\server\\ServerStopEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "finalize")), $this->hub);
+		// FileUtils::copy(RawLocs::basePath(), RawLocs::worldPath());
+		// $this->current = new Game($this->server->getLevel(RawLocs::worldName()));
+		// $this->server->registerEvent("pocketmine\\event\\server\\ServerStopEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "finalize")), $this->hub);
 	}
-  public function onJoinMg(Player $p){
+	public function onJoinMg(Player $p){
 	}
 	public function onQuitMg(Player $p){
 	}
 	public function getName(){
 		return "CTF";
+	}
+	public function getSessionId(){
+		return HubPlugin::CTF;
 	}
 	public function getSpawn(Player $p, $TID){
 		// TODO

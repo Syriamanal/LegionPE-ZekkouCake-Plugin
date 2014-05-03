@@ -2,10 +2,11 @@
 
 namespace pemapmodder\legionpe\geog;
 
+use pemapmodder\utils\oldapi\Level as Lv;
 use pemapmodder\utils\spaces\CuboidSpace as MySpace;
 
-use pocketmine\level\Level as Lv;
 use pocketmine\math\Vector3;
+use pocketmine\utils\TextFormat as Font;
 
 abstract class RawLocs{
 	public final static function chooseTeamStd(){
@@ -27,6 +28,7 @@ abstract class RawLocs{
 		$z = self::teamScoreBarZ();
 		$maxLength = abs($z[0] - $z[1]);
 		$length = (int) ($maxLength / 100 * $percentage);
+		console(Font::AQUA."[DEBUG] CuboidSpace ".class_exists("pemapmodder\\utils\\spaces\\CuboidSpace", true)?"":"doesn't "."exists.");
 		return new MySpace(
 			new Vector3(self::teamScoreBarX($team), self::teamScoreBarY()[0], min($z)),
 			new Vector3(self::teamScoreBarX($team), self::teamScoreBarY()[1], min($z) + $length),

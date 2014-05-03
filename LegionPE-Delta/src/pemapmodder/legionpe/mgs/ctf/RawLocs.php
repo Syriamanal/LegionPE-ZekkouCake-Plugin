@@ -2,7 +2,7 @@
 
 namespace pemapmodder\legionpe\mgs\ctf;
 
-use pemapmodder\legionpe\hub\RawLocs as ParentClass;
+use pemapmodder\legionpe\geog\RawLocs as ParentClass;
 
 use pocketmine\Server;
 

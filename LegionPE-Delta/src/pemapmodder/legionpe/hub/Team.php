@@ -51,6 +51,10 @@ class Team implements \ArrayAccess{
 	public static function updateScoreBars(){
 		$scores = array();
 		for($i = 0; $i < 4; $i++){
+			if(!(self::$teams[$i] instanceof self)){
+				console("[WARNING] hub\\Team::\$teams[$i] is not instanceof Team!");
+				return;
+			}
 			$scores[$i] = self::$teams[$i]["points"];
 		}
 		$max = max($scores);
