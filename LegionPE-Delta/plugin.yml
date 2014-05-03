@@ -1,8 +1,8 @@
-name: LegionPE
+name: LegionPE Delta
 authors: [PEMapModder]
 main: pemapmodder\legionpe\hub\HubPlugin
-load: startup
+load: PostWorld
 prefix: LegionPE
 website: https://github.com/mcpesrccode/LegionPE-ZekkouCake-Plugin
 api: [1.0.0]
-version: Delta 3.0
+version: 3.0

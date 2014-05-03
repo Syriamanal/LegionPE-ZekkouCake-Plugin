@@ -2,13 +2,13 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pemapmodder\legionpe\geog\Position;
 use pemapmodder\legionpe\geog\RawLocs;
 
 use pemapmodder\utils\spaces\CuboidSpace as Space;
 use pemapmodder\utils\spaces\CylinderSpace as CS;
 
 use pocketmine\block\Block;
-use pocketmine\level\Position;
 
 class Builder extends RawLocs{
 	public static function build(Position $centre, $radius, Block $block, $floors, $height, $players, Block $pfloor, Block $wall, Block $ceil){
@@ -53,5 +53,8 @@ class Builder extends RawLocs{
 			case 4 & 0b11:
 				return new Space(new Vector3(130, 82, 104), new Vector3(126, 82, 104), parent::spleef());
 		}
+	}
+	public final static function spawn(){
+		return new Position(128, 83, 123, parent::spleef());
 	}
 }

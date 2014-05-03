@@ -18,7 +18,7 @@ use pocketmine\event\Event;
 use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\item\Item;
-use pocketmine\permisison\DefaultPermissions as DP;
+use pocketmine\permission\DefaultPermissions as DP;
 use pocketmine\permission\Permission as Perm;
 
 class Pvp implements CmdExe, Listener{
@@ -39,10 +39,10 @@ class Pvp implements CmdExe, Listener{
 		$mg = DP::registerPermission(new Perm("legionpe.mg.pvp", "Allow doing some actions in PvP minigame"), $mgs);
 		DP::registerPermission(new Perm("legionpe.mg.pvp.spawnattack", "Allow attacking at spawn platform", Perm::DEFAULT_OP), $mg);
 		// event handlers
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
-		$this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
+		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityDeathEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onDeath")), $this->hub);
+		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\entity\\EntityHurtEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onHurt")), $this->hub);
+		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerAttackEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onAttack")), $this->hub);
+		// $this->server->getPluginManager()->registerEvent("pocketmine\\event\\player\\PlayerRespawnEvent", $this, EventPriority::HIGH, new EvtExe(array($this, "onRespawn")), $this->hub);
 		// commands
 		$cmd = new Cmd("pvp", $this->hub, $this);
 		$cmd->setDescription("Get the PvP kit!");
@@ -191,13 +191,13 @@ class Pvp implements CmdExe, Listener{
 		$this->hub->getDb($killer)->save();
 	}
 	public function equip(Player $player){
-		$rk = $this->hub->getDb($player)->get("kitpvp")["class"]
+		$rk = $this->hub->getDb($player)->get("kitpvp")["class"];
 		$data = $this->hub->config->get("kitpvp")["auto-equip"][$rk];
 		foreach($data["inv"] as $slot=>$item){
 			$player->setSlot($slot, Item::get($item[0], $item[1], $item[2]));
 		}
 		foreach($data["arm"] as $slot=>$armor){
-			$player->setArmorSlot(array("h"=>0, "c"=>1, "l"=>2, "b"=>3)[$slot], Item::get($armor));
+			$player->setArmorSlot($slot, Item::get($armor));
 		}
 	}
 	public static $inst = false;

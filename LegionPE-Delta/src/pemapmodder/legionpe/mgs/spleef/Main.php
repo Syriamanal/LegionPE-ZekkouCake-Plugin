@@ -2,6 +2,7 @@
 
 namespace pemapmodder\legionpe\mgs\spleef;
 
+use pemapmodder\legionpe\hub\Hub;
 use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\legionpe\mgs\MgMain;
 
@@ -61,6 +62,10 @@ class Main implements Listener, MgMain{
 			$player->sendMessage("The match has started / waiting to start! You can't join!");
 		}
 	}
+	public function quit($from, Player $player){
+		$isTeam = count(explode(".", Hub::get()->getChannel($player))) === 5;
+		Hub::get()->setChannel($player, $isTeam ? "legionpe.chat.spleef.".$this->hub->getDb($player)->get("team"):"legionpe.chat.spleef.public");
+	}
 	public function getChance(Player $player){
 		return $this->hub->config->get("spleef")["chances"][$this->hub->getRank($player)];
 	}
@@ -76,6 +81,18 @@ class Main implements Listener, MgMain{
 		unset($this->sessions[$p->CID]);
 		$p->removeAttachment($this->atchmts[$p->CID]);
 		unset($this->atchmts[$p->CID]);
+	}
+	public function getName(){
+		return "Spleef";
+	}
+	public function getSessionId(){
+		return HubPlugin::SPLEEF;
+	}
+	public function getSpawn(){
+		return Builder::spawn();
+	}
+	public function getDefaultChatChannel(){
+		return "legionpe.chat.spleef.public";
 	}
 	public function isJoinable(){
 		return true;

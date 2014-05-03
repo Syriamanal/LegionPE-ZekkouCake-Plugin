@@ -92,71 +92,61 @@ class HubPlugin extends PluginBase implements Listener{
 		DP::registerPermission(new Permission("legionpe.cmd.chat.mute", "Allowing using subcommand /chat mute", Permission::DEFAULT_TRUE), $chat);
 	}
 	protected function initConfig(){
-			$this->config = new Config($this->getServer()->getDataPath()."Hub/general-config.json", Config::JSON, array(
-				"kitpvp"=>array(
-					"prefixes"=>array(
-						"fighter"		=>25,
-						"killer"		=>75,
-						"danger"		=>150,
-						"hard"			=>250,
-						"beast"			=>375,
-						"elite"			=>525,
-						"warrior"		=>675,
-						"knight"		=>875,
-						"boss"			=>1100,
-						"addict"		=>1350,
-						"unstoppable"	=>1625,
-						"pro"			=>1925,
-						"hardcore"		=>2250,
-						"master"		=>2600,
-						"legend"		=>2975,
-						"god"			=>3375,
-						""						=>3800,
-						""						=>4250,
-						""						=>4725
-					),
-					"auto-equip"=>array(
-						"fighter"=>array(
-							"inv"=>array(
-								array(267, 0, 1),
-								array(360, 0, 32)
-							),
-							"arm"=>array(306, 299, 300, 309)
+		$prefixes = array("fighter", "killer", "danger", "hard", "beast", "elite", "warrior", "knight", "boss", "addict", "unstoppable", "pro", "hardcore", "master", "legend", "god");
+		$diff = 0;
+		$last = 0;
+		$pfxs = array();
+		foreach($prefixes as $pfx){
+			$diff += 25;
+			$last += $diff;
+			$pfxs[$pfx] = $last;
+		}
+		$this->config = new Config($this->getServer()->getDataPath()."Hub/general-config.json", Config::JSON, array(
+			"config-version-never-edit-this"=>0,
+			"kitpvp"=>array(
+				"prefixes"=>$pfxs,
+				"auto-equip"=>array(
+					"fighter"=>array(
+						"inv"=>array(
+							array(267, 0, 1),
+							array(360, 0, 32)
 						),
-					),
-					"classes"=>array(
-						"player"=>array("fighter", "healer"),
-						"donater"=>array("fighter", "healer", "blahblah")
-					),
-					"top-kills"=>array(
-						"Avery Black"=>4,
-						"Cindy Donalds"=>3,
-						"Elvin Farmer"=>2,
-						"Gregor Hill"=>1,
-						"Ivan Jones"=>0,
+						"arm"=>array(306, 299, 300, 309)
 					),
 				),
-				"spleef"=>array(
-					"chances"=>array(
-						"player"=>45,
-						"donater"=>50,
-						"vip"=>55,
-						"vip-plus"=>60,
-						"vip-plus-plus"=>65,
-						"premium"=>70,
-						"sponsor"=>75,
-						"staff"=>55,
-					),
+				"classes"=>array(
+					"player"=>array("fighter", "healer"),
+					"donater"=>array("fighter", "healer", "blahblah")
 				),
-				"parkour"=>array(
-					"stats"=>array(
-						"easy"=>0,
-						"medium"=>0,
-						"hard"=>0,
-						"extreme"=>0,
-					),
+				"top-kills"=>array(
+					"Avery Black"=>4,
+					"Cindy Donalds"=>3,
+					"Elvin Farmer"=>2,
+					"Gregor Hill"=>1,
+					"Ivan Jones"=>0,
 				),
-			));
+			),
+			"spleef"=>array(
+				"chances"=>array(
+					"player"=>45,
+					"donater"=>50,
+					"vip"=>55,
+					"vip-plus"=>60,
+					"vip-plus-plus"=>65,
+					"premium"=>70,
+					"sponsor"=>75,
+					"staff"=>55,
+				),
+			),
+			"parkour"=>array(
+				"stats"=>array(
+					"easy"=>3, // the fact is, many people told me they finished xD
+					"medium"=>3,
+					"hard"=>3,
+					"extreme"=>3,
+				),
+			),
+		));
 	}
 	protected function registerHandles(){ // register events
 		foreach(array("PlayerJoin", "PlayerChat", "EntityArmorChange", "EntityMove", "PlayerInteract", "PlayerCommandPreprocess", "PlayerLogin", "PlayerQuit") as $e)

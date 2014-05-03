@@ -14,7 +14,7 @@ use pemapmodder\utils\CallbackPluginTask;
 
 use pocketmine\Player;
 use pocketmine\Server;
-use pocketmine\commamd\Command;
+use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor as CmdExe;
 use pocketmine\command\CommandSender as Issuer;
 use pocketmine\event\Event;
@@ -176,7 +176,10 @@ class Hub implements CmdExe, Listener{
 							return "You don't have permission to use /chat ch";
 						if(isset($args[0])){
 							$ch = array_shift($args);
-							if($isr->hasPermission("legionpe.cmd.chat.ch.all")){
+							if($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr)){
+								$this->setChannel($isr, $ch);
+							}
+							elseif($isr->hasPermission("legionpe.cmd.chat.ch.all")){
 								$copy = $ch;
 								if($this->proofreadChannelName($ch)){
 									if($copy !== "mute" and $copy !== "m")
@@ -185,9 +188,6 @@ class Hub implements CmdExe, Listener{
 									return "Typo detected in \"$ch\".";
 								}
 								$this->setChannel($isr, $ch); // absolute channel
-							}
-							elseif($this->hasChannelPermission($this->hub->getSession($isr), $ch, $isr)){
-								$this->setChannel($isr, $ch);
 							}
 							else return "You don't have permission to create/join this chat channel";
 							return "Your chat channel has been set to \"$ch\"";

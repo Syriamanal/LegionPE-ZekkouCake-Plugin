@@ -1,7 +1,5 @@
 <?php
-
 namespace pemapmodder\legionpe\mgs\pk;
-
 use pemapmodder\legionpe\hub\HubPlugin;
 use pemapmodder\legionpe\hub\Team;
 use pemapmodder\legionpe\mgs\MgMain;
@@ -55,9 +53,9 @@ class Parkour implements CmdExe, Listener, MgMain{
 	}
 	public function onMove(Event $event){
 		if(($p = $event->getEntity()) instanceof Player){
-			if($p->level->getName() === "world_parkour"){
+			if($p->level->getName() === "world_parkour" and ($p->x < 77 and $p->x > 40) and ($p->z < 100 and $p->z > 30)){
 				if($p->y <= RawLocs::fallY()){
-					$p->teleport(RawLocs::pk()->());
+					$p->teleport(new Vector3($p->x, 73, 67));
 					Team::get($this->hub->getDb($p)->get("team"))["points"]--; // Am I sure?
 				}
 			}
