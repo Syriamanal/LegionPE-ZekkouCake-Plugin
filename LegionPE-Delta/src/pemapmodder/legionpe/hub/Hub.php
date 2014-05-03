@@ -199,7 +199,8 @@ class Hub implements CmdExe, Listener{
 				$output .= "/unmute: Equal to /chat unmute";
 				$output .= "/mute: Equal to /chat mute";
 				$output .= "/chat mute: Equal to \"/chat ch m\" or \"/chat ch mute\"";
-				$output .= "/chat ch <channel> Join a chat channel"
+				$output .= "/chat ch <channel> Join a chat channel";
+				return $output;
 		}
 	}
 	public function proofreadChannelName(&$ch){ // check if typo exists; not very safe, but at least a safeguard exists

@@ -23,9 +23,10 @@ class Team implements \ArrayAccess{
 		return self::$teams[$i];
 	}
 	public static function init(){
+		@mkdir(Server::getInstance()->getDatapath()."hub/teams/");
 		for($i = 0; $i < 4; $i++)
 			self::$teams[$i] = new self($i);
-		Server::getInstance()->getScheduler()->scheduleRepeatedTask(new CallbackPluginTask(array(get_class(), "updateScoreBars"), HubPlugin::get()), 600);
+		Server::getInstance()->getScheduler()->scheduleRepeatingTask(new CallbackPluginTask(array(get_class(), "updateScoreBars"), HubPlugin::get()), 600);
 	}
 	public static function canJoin($team){
 		$scores = array();
@@ -69,8 +70,10 @@ class Team implements \ArrayAccess{
 			$this->config = \yaml_parse(\file_get_contents($path));
 		}
 		else{
-			$this->config["name"] = array("magma", "lapiz", "lilac", "lime")[$i];
-			$this->config["color-meta"] = array(1, 3, 10, 5)[$i];
+			$names = array("magma", "lapiz", "lilac", "lime");
+			$this->config["name"] = $names[$i];
+			$metas = array(1, 3, 10, 5);
+			$this->config["color-meta"] = $metas[$i];
 			$this->config["points"] = 1000;
 			$this->config["members-cnt"] = 10;
 			\file_put_contents($path, \yaml_emit($this->config));

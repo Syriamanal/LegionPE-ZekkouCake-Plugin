@@ -68,8 +68,8 @@ class HubPlugin extends PluginBase implements Listener{
 		console(TextFormat::GREEN."Done!");
 	}
 	protected function initObjects(){ // initialize objects: Team, Hub, other minigames
-		Team::init();
 		Hub::init();
+		Team::init();
 		Pvp::init();
 		Pk::init();
 		Spleef::init();
@@ -80,7 +80,7 @@ class HubPlugin extends PluginBase implements Listener{
 		// minigames
 		$mgs = DP::registerPermission(new Permission("legionpe.mg", "Allow doing actions in minigames"), $root);
 		// commands
-		$cmds = DP::registerPermission(new Permission("legionpe.cmd"), $root);
+		$cmd = DP::registerPermission(new Permission("legionpe.cmd"), $root);
 		$pcmds = DP::registerPermission(new Permission("legionpe.cmd.players", "Allow using player-spawn-despawn-related commands"), $cmd);
 		foreach(array("show", "hide") as $act)
 			DP::registerPermission(new Permission("legionpe.cmd.players.$act", "Allow using command /$act", Permission::DEFAULT_TRUE), $cmd);
@@ -92,7 +92,7 @@ class HubPlugin extends PluginBase implements Listener{
 		DP::registerPermission(new Permission("legionpe.cmd.chat.mute", "Allowing using subcommand /chat mute", Permission::DEFAULT_TRUE), $chat);
 	}
 	protected function initConfig(){
-			$this->config = new Config($this->getServer()->getDataPath()."general-config.json", Config::JSON, array(
+			$this->config = new Config($this->getServer()->getDataPath()."Hub/general-config.json", Config::JSON, array(
 				"kitpvp"=>array(
 					"prefixes"=>array(
 						"fighter"		=>25,
@@ -282,7 +282,7 @@ class HubPlugin extends PluginBase implements Listener{
 		if(is_callable(array($event, "getPlayer"))){ // if is player event, store player into $p
 			$p = $event->getPlayer();
 		}
-		switch(substr($class, 0, -5)){ handle events
+		switch(substr($class, 0, -5)){ // handle events
 			case "PlayerLogin": // what the **** I put it here for...
 				break;
 			case "PlayerJoin": // open database, check password (decide (registry wizard / IP auth / password auth))
@@ -448,6 +448,7 @@ class HubPlugin extends PluginBase implements Listener{
 				"parkour"=>"",
 				"kitpvp-rank"=>"",
 				"rank"=>"",
+			),
 			"kitpvp"=>array("kills"=>0, "deaths"=>0, "class"=>"fighter"),
 			"parkour"=>array(),
 			"spleef"=>array("wins"=>0, "unwonws"=>0),
@@ -455,13 +456,12 @@ class HubPlugin extends PluginBase implements Listener{
 			"team" => false,
 			"mute" => false
 		));
-		$r = ($rank = $this->getRank($p)) === "player" ? "":
-				ucfirst(str_replace(array("-starred", "-plus", "vip"), array("*", "+", "VIP"), $rank))),
+		$r = ($rank = $this->getRank($p)) === "player" ? "":ucfirst($rank);
 		$pfxs = $config->get("prefixes");
 		$pfxs["rank"] = $r;
 		$config->set("prefixes", $pfxs);
 		$config->save();
-		$path = $this->getServer()->getDataPath()."SKC-Rewrite/player-databases/".strtolower($p->getName(){0})."/{$p->getName()}.txt";
+		$path = $this->getServer()->getDataPath()."SKC-Rewrite/player-databases/".strtolower($p->getName()[0])."/{$p->getName()}.txt";
 		if(($yaml = @\file_get_contents($path)) !== false){
 			$data = \yaml_parse($yaml);
 			$i = $config->get("kitpvp");

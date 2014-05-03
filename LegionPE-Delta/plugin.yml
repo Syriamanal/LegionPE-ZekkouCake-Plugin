@@ -1,6 +1,5 @@
-name:LegionPE
-authors:
-- PEMapModder
+name: LegionPE
+authors: [PEMapModder]
 main: pemapmodder\legionpe\hub\HubPlugin
 load: startup
 prefix: LegionPE
