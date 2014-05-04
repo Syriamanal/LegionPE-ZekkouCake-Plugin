@@ -12,11 +12,10 @@ use pocketmine\tile\Tile;
 
 class Team{
 	// static
-	protected static $teams = array();
 	public static function addPoints($i, $pts){
 		self::get($i)->config["points"] += $pts;
 	}
-	protected static function evalI($i){
+	public static function evalI($i){
 		if(is_int($i)) $i &= 0b11;
 		elseif($i instanceof Player) $i = HubPlugin::get()->getDb($i)->get("team");
 		else{
@@ -24,21 +23,28 @@ class Team{
 			return;
 		}
 	}
+	public static function getAll(){
+		$r = array();
+		for($i = 0; $i < 4; $i++)
+			$r[$i] = HubPlugin::get()->getTeam($i);
+		return $r;
+	}
 	public static function get($i){
-		return self::$teams[self::evalI($i)];
+		return HubPlugin::get()->getTeam($i);
 	}
 	public static function init(){
 		@mkdir(Server::getInstance()->getDatapath()."hub/teams/");
-		for($i = 0; $i < 4; $i++)
-			self::$teams[$i] = new self($i);
+		for($i = 0; $i < 4; $i++){
+			HubPlugin::get()->teams[$i] = new self($i);
+		}
 		Server::getInstance()->getScheduler()->scheduleRepeatingTask(new CallbackPluginTask(array(get_class(), "updateScoreBars"), HubPlugin::get()), 600);
 	}
 	public static function canJoin($team){
 		$scores = array();
-		foreach(self::$teams as $t){
+		foreach(self::getAll() as $t){
 			$scores[$t->getTeam()] = $t->config["members-cnt"];
 		}
-		$ts = self::$teams[$team]->config["members-cnt"];
+		$ts = self::get($team)->config["members-cnt"];
 		$max = max($scores);
 		$percent = ($max - $ts) / $ts * 100;
 		return $ts <= 5;
@@ -49,19 +55,19 @@ class Team{
 				DummyPlugin::getTile(RL::chooseTeamSigns($i))->setText("Tap me to join", "TEAM ".strtoupper(self::$teams[$i]->config["name"]));
 			}
 			else{
-				DummyPlugin::getTile(RL::chooseTeamSigns($i))->setText("TEAM ".strtoupper(self::$teams[$i]->config["name"]), "is now full.", "Come back later", "or join others");
+				DummyPlugin::getTile(RL::chooseTeamSigns($i))->setText("TEAM ".strtoupper(self::get($i)->config["name"]), "is now full.", "Come back later", "or join others");
 			}
 		}
 	}
 	public static function updateScoreBars(){
 		$scores = array();
 		for($i = 0; $i < 4; $i++){
-			$scores[$i] = self::$teams[$i]->config["points"];
+			$scores[$i] = self::get($i)->config["points"];
 		}
 		$max = max($scores);
 		for($i = 0; $i < 4; $i++){
 			$percent = max(0, $scores[$i]) / $max * 100;
-			RL::teamScoreBar($i, $percent)->setBlocks(Block::get(35, self::$teams[$i]->config["color-meta"]));
+			RL::teamScoreBar($i, $percent)->setBlocks(Block::get(35, self::get($i)->config["color-meta"]));
 		}
 		console("[INFO] Hub score bars have been updated.");
 	}
