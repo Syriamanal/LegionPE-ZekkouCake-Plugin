@@ -33,7 +33,7 @@ class Arena extends PluginTask{
 		$this->pwall = $pwall;
 		$this->pceil = $pceil;
 		$this->pcnt = $players;
-		$this->server->getScheduler()->scheduleRepeatedTask($this, 1);
+		$this->server->getScheduler()->scheduleRepeatingTask($this, 1);
 		$this->refresh();
 	}
 	protected function refresh(){
@@ -53,10 +53,14 @@ class Arena extends PluginTask{
 		}
 	}
 	public function isJoinable(){
-		return $this->status === 0 and count($this->players) < $this->pcnt;
+		if($this->status === 1)
+			return "Arena already started.";
+		if(count($this->players) < $this->pcnt)
+			return "Arena full.";
+		return true;
 	}
 	public function kick(Player $player, $reason = "Unknown reason"){
-		$this->quit($player, "Kick: $reason");
+		$this->quit($player, "Kick from arena for $reason");
 	}
 	public function cntPlayers(){
 		return count($this->players);
@@ -68,20 +72,23 @@ class Arena extends PluginTask{
 		$this->preps = Builder::build($this->centre, $this->radius, $this->gfloor, $this->floors, $this->height, $cnt, $this->pfloor, $this->pwall, $this->pceil);
 	}
 	public function join(Player $player){
-		if(!$this->isJoinable()) return false;
-		$this->players[] = $player;
+		if(!$this->isJoinable())
+			return false;
+		$this->players[$player->CID] = $player;
 		$this->broadcast($player->getDisplayName()." has joined this arena.");
 		$player->sendMessage("You have joined arena {$this->id}!");
 		$player->sendMessage("There are now ".count($this->players)." players in this arena, ".($this->pcnt - count($this->players))." more needed.");
 		if(count($this->players) >= $this->pcnt){
 			$this->prestart();
-		}elseif(count($this->players) === 2 and $this->scheduleTicks <= 0){
+		}
+		elseif(count($this->players) === 2 and $this->scheduleTicks <= 0){
 			$this->broadcast("60 seconds until match starts!");
 			$this->scheduleTicks = 20 * 60;
 		}
 		return true;
 	}
 	public function quit(Player $player, $reason = "Unknown reason"){
+		unset($this->players[$player->CID]);
 		$this->broadcast($player->getDisplayName()." left. Reason: $reason.");
 	}
 	public function broadcast($message, $ret = null){
@@ -92,7 +99,7 @@ class Arena extends PluginTask{
 	protected function prestart(){ // schedule the starting
 		$this->prestartTicks = 201;
 	}
-	public function onRun($ticks){ // scheduled task
+	public function onRun($ticks){ // scheduled task per tick
 		$this->scheduleTicks--;
 		if($this->scheduleTicks % (20 * 10) === 0){
 			$this->broadcast(($this->scheduleTicks / 20)." seconds before match starts!");
@@ -108,11 +115,16 @@ class Arena extends PluginTask{
 		}
 		$this->runtimeTicks--;
 		if($this->runtimeTicks === 1){
-			$this->end();
+			$this->end("Time's up!");
 			$this->runtimeTicks = -1;
 		}
 	}
 	protected function start(){
 		$this->runtimeTicks = 20 * 60 * 3;
+	}
+	protected function end($reason){
+		$this->broadcast("The match ended. Reason: $reason.");
+	}
+	public function onInteract($event){
 	}
 }

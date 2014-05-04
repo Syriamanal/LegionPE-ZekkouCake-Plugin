@@ -13,26 +13,25 @@ use pocketmine\tile\Tile;
 class Team{
 	// static
 	protected static $teams = array();
-	public static function get($i){
+	public static function addPoints($i, $pts){
+		self::get($i)->config["points"] += $pts;
+	}
+	protected static function evalI($i){
 		if(is_int($i)) $i &= 0b11;
 		elseif($i instanceof Player) $i = HubPlugin::get()->getDb($i)->get("team");
 		else{
-			trigger_error("Unexpected argument 1 (".print_r($i, true).") passed to ".get_class()."::get($i)", E_USER_ERROR);
+			trigger_error("Unexpected argument 1 (".print_r($i, true).") passed to ".get_class()."::evalI($i)", E_USER_ERROR);
 			return;
 		}
-		return self::$teams[$i];
+	}
+	public static function get($i){
+		return self::$teams[self::evalI($i)];
 	}
 	public static function init(){
 		@mkdir(Server::getInstance()->getDatapath()."hub/teams/");
 		for($i = 0; $i < 4; $i++)
 			self::$teams[$i] = new self($i);
 		Server::getInstance()->getScheduler()->scheduleRepeatingTask(new CallbackPluginTask(array(get_class(), "updateScoreBars"), HubPlugin::get()), 600);
-	}
-	public static function dumpTeams($t){
-		if(!(self::$teams[0] instanceof self)){
-			console("At tick $t team 0 not Team instance");
-			var_dump(self::$teams[0]);
-		}
 	}
 	public static function canJoin($team){
 		$scores = array();

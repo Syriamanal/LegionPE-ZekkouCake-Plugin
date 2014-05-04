@@ -37,12 +37,13 @@ class Main implements Listener, MgMain{
 			$pm->registerEvent("pocketmine\\event\\".$ev[0], $this, EventPriority::HIGH, new CallbackEventExe(array($this, $ev[1])), HubPlugin::get());
 	}
 	public function onMove(Event $evt){
-		if($evt->getEntity() instanceof Player){
+		if($evt->getEntity() instanceof Player and $evt->getEntity()->level->getName() === "world_spleef"){
 			if(($sid = $this->sessions[$evt->getEntity()->CID]) !== -1)
 				$this->arenas[$sid]->onMove($evt);
 		}
 	}
 	public function onInteract(Event $evt){
+		if($evt->getPlayer()->level->getName() === Builder::spleef()->getName())
 		if(($sid = $this->sessions[$evt->getPlayer()->CID]) !== -1)
 			$this->arenas[$sid]->onInteract($evt);
 		else{
@@ -55,11 +56,11 @@ class Main implements Listener, MgMain{
 		}
 	}
 	public function join($SID, Player $player){
-		if($this->arenas[$SID]->isJoinable()){
+		if(($reason = $this->arenas[$SID]->isJoinable()) === true){
 			$this->arenas[$SID]->join($player);
 		}
 		else{
-			$player->sendMessage("The match has started / waiting to start! You can't join!");
+			$player->sendMessage("You can't join this arena! Reason: $reason");
 		}
 	}
 	public function quit($from, Player $player){
